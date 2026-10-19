@@ -38,7 +38,6 @@ export function PspPortfolioPage({
   posts,
   collections,
 }: PspPortfolioPageProps) {
-  const [openCollectionId, setOpenCollectionId] = useState<string | null>(null);
   const [expandedItem, setExpandedItem] = useState<XmbItem | null>(null);
 
   const categories = useMemo(
@@ -47,11 +46,9 @@ export function PspPortfolioPage({
       workItems,
       experienceItems,
       posts,
-      contact,
       collections,
-      openCollectionId,
     }),
-    [hero, workItems, experienceItems, posts, contact, collections, openCollectionId]
+    [hero, workItems, experienceItems, posts, collections]
   );
 
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
@@ -64,12 +61,9 @@ export function PspPortfolioPage({
   const activeItem = activeCategory?.items?.[activeItemIndex];
   const categoryItemsLength = activeCategory?.items?.length ?? 0;
 
-  const navigationLocked = openCollectionId !== null;
-
   const selectCategory = useCallback((index: number) => {
-    if (navigationLocked) return;
     setActiveCategoryIndex(index);
-  }, [navigationLocked]);
+  }, []);
 
   const selectItem = useCallback((index: number) => {
     setActiveItemIndices((previous) => ({ ...previous, [activeCategoryIndex]: index }));
@@ -77,18 +71,6 @@ export function PspPortfolioPage({
 
   const activateItem = useCallback((item?: XmbItem) => {
     if (!item) return;
-
-    if (item.action === "open-collection" && item.actionValue) {
-      setOpenCollectionId(item.actionValue);
-      setActiveItemIndices((previous) => ({ ...previous, [activeCategoryIndex]: 1 }));
-      return;
-    }
-
-    if (item.action === "collection-back") {
-      setOpenCollectionId(null);
-      setActiveItemIndices((previous) => ({ ...previous, [activeCategoryIndex]: 0 }));
-      return;
-    }
 
     if (item.detailHref) {
       setExpandedItem(item);
@@ -128,17 +110,8 @@ export function PspPortfolioPage({
         return;
       }
 
-      if ((event.key === "Escape" || event.key === "Backspace" || event.key === "ArrowLeft") && openCollectionId) {
-        event.preventDefault();
-        setOpenCollectionId(null);
-        setActiveItemIndices((previous) => ({ ...previous, [activeCategoryIndex]: 0 }));
-        return;
-      }
-
-      if (openCollectionId && event.key === "ArrowRight") {
-        event.preventDefault();
-        return;
-      }
+      // Let focused social links handle Enter and arrow keys normally.
+      if (event.target instanceof HTMLElement && event.target.closest("a")) return;
 
       const navKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"];
       if (!navKeys.includes(event.key)) return;
@@ -165,7 +138,7 @@ export function PspPortfolioPage({
         activateItem(activeItem);
       }
     },
-    [activeCategoryIndex, categoryItemsLength, activeItem, categories.length, activateItem, expandedItem, openCollectionId]
+    [activeCategoryIndex, categoryItemsLength, activeItem, categories.length, activateItem, expandedItem]
   );
 
   useEffect(() => {
@@ -193,25 +166,23 @@ export function PspPortfolioPage({
         <div className="block lg:hidden">
           <PspMobileView
             categories={categories}
+            contact={contact}
             name={`${hero.firstName} ${hero.lastName}`}
-            tagline={hero.tagline || "Software Engineer"}
             activeCategoryIndex={activeCategoryIndex}
             activeItemIndex={activeItemIndex}
             onCategorySelect={selectCategory}
             onItemSelect={selectItem}
             onItemActivate={activateItemAtIndex}
-            navigationLocked={navigationLocked}
           />
         </div>
 
         <div className="psp-shell psp-browse-shell fixed inset-0 z-40 hidden select-none overflow-hidden text-white lg:block">
-          <XmbHeader name={`${hero.firstName} ${hero.lastName}`} tagline={hero.tagline || "Software Engineer"} />
+          <XmbHeader name={`${hero.firstName} ${hero.lastName}`} contact={contact} />
 
           <XmbHorizontalAxis
             categories={categories}
             activeCategoryIndex={activeCategoryIndex}
             onCategorySelect={selectCategory}
-            locked={navigationLocked}
           />
 
           <XmbVerticalAxis
@@ -226,8 +197,8 @@ export function PspPortfolioPage({
             onActivate={activeItem?.activationLabel ? () => activateItem(activeItem) : undefined}
           />
 
-          <p className="absolute bottom-8 right-[8%] z-20 text-xs text-white/35">
-            {navigationLocked ? "Arrow keys to browse · Left arrow to return" : "Arrow keys to browse · Enter to open"}
+          <p className="absolute bottom-8 right-[var(--psp-edge)] z-20 text-xs text-white/35">
+            Arrow keys to browse · Enter to open
           </p>
 
           <p className="sr-only" aria-live="polite">

@@ -54,10 +54,55 @@ body::selection {
 
 .psp-browse-shell {
   background: var(--psp-bg);
-  /* Shared desktop anchors keep the XMB navigation and preview aligned. */
-  --psp-axis-top: clamp(10.5rem, 26vh, 21rem);
-  --psp-navigation-left: max(18%, calc(50% - 33rem));
-  --psp-details-left: max(46%, calc(50% - 2.5rem));
+
+  /* A single responsive coordinate system for the header, XMB rail and
+     preview. The right column follows the measured width of the left one. */
+  --psp-edge: clamp(2rem, 6vw, 6.5rem);
+  --psp-header-top: clamp(1.75rem, 5vh, 3.5rem);
+  --psp-header-safe-bottom: calc(var(--psp-header-top) + 7.25rem);
+  --psp-axis-top: clamp(12rem, 30dvh, 20rem);
+  --psp-navigation-left: max(9.5rem, 15.5vw, calc(50% - 35rem));
+  --psp-navigation-width: clamp(14.5rem, 22vw, 20rem);
+  --psp-column-gap: clamp(3rem, 5vw, 5.5rem);
+  --psp-details-left: calc(var(--psp-navigation-left) + var(--psp-navigation-width) + var(--psp-column-gap));
+  --psp-row-offset: 7.875rem;
+  --psp-rail-bottom: 3.75rem;
+}
+
+.psp-xmb-header {
+  left: var(--psp-edge);
+  right: var(--psp-edge);
+  top: var(--psp-header-top);
+}
+
+.psp-xmb-group {
+  left: var(--psp-navigation-left);
+  width: var(--psp-navigation-width);
+}
+
+.psp-xmb-details {
+  top: calc(var(--psp-axis-top) + var(--psp-row-offset));
+  bottom: clamp(3.5rem, 8vh, 6rem);
+  left: var(--psp-details-left);
+  right: var(--psp-edge);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, white 22%, transparent) transparent;
+}
+
+.psp-xmb-detail-inner {
+  border-left: 1px solid rgb(255 255 255 / 0.15);
+  padding-left: clamp(1.5rem, 2.5vw, 2rem);
+}
+
+/* Keep the desktop XMB usable in a narrower browser window instead of
+   squeezing the original wide-screen column offsets. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .psp-browse-shell {
+    --psp-edge: clamp(2.5rem, 5vw, 4rem);
+    --psp-navigation-left: clamp(8.75rem, 14.5vw, 12rem);
+    --psp-navigation-width: clamp(13.5rem, 22vw, 17.5rem);
+    --psp-column-gap: clamp(2.5rem, 4vw, 3.25rem);
+  }
 }
 
 .psp-xmb-category {
@@ -69,7 +114,9 @@ body::selection {
 }
 
 .psp-xmb-rail {
-  mask-image: linear-gradient(to bottom, transparent 9%, black 15%, black 88%, transparent 98%);
+  /* Unlike a z-index overlay, clipping also excludes hidden rail entries
+     from mouse hit testing around the header. */
+  clip-path: inset(var(--psp-header-safe-bottom) 0 0 0);
 }
 
 @media (prefers-reduced-motion: reduce) {

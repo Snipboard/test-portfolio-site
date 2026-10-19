@@ -1,7 +1,6 @@
 import type {
   PortfolioWork,
   PortfolioHero,
-  PortfolioContact,
   PortfolioExperience,
   PortfolioPost,
   PortfolioCollection,
@@ -10,8 +9,6 @@ import type { XmbCategory, XmbItem } from "./types";
 import {
   HomeIcon,
   ProjectsIcon,
-  ExperienceIcon,
-  ContactIcon,
   BlogIcon,
 } from "./xmb-icons";
 import { getCollectionView } from "@/lib/portfolio-collections";
@@ -21,9 +18,7 @@ export interface BuildCategoriesInput {
   workItems: PortfolioWork[];
   experienceItems: PortfolioExperience[];
   posts: PortfolioPost[];
-  contact: PortfolioContact;
   collections: PortfolioCollection[];
-  openCollectionId: string | null;
 }
 
 function projectItem(work: PortfolioWork): XmbItem {
@@ -66,45 +61,28 @@ function postItem(post: PortfolioPost): XmbItem {
 function collectionItems<T extends { collectionId?: string }>(
   section: "projects" | "blog",
   collections: PortfolioCollection[],
-  openCollectionId: string | null,
   entries: T[],
   mapEntry: (entry: T) => XmbItem,
 ): XmbItem[] {
-  const { openCollection, contained, folders, ungrouped } = getCollectionView(
-    section,
-    collections,
-    openCollectionId,
-    entries,
+  const { folders, ungrouped } = getCollectionView(section, collections, null, entries);
+
+  // Headings are visual only; items remain in a single, keyboard-navigable list.
+  const grouped = folders.flatMap(({ collection }) =>
+    entries
+      .filter((entry) => entry.collectionId === collection.id)
+      .map((entry) => ({
+        ...mapEntry(entry),
+        groupId: collection.id,
+        groupTitle: collection.title,
+      }))
   );
 
-  if (openCollection) {
-    return [
-      {
-        id: `collection-back-${openCollection.id}`,
-        kind: "folder",
-        title: `Back to ${section === "projects" ? "Projects" : "Blog"}`,
-        subtitle: openCollection.title,
-        description: openCollection.description,
-        action: "collection-back",
-        activationLabel: "Go back",
-      },
-      ...contained.map(mapEntry),
-    ];
-  }
-
-  const folderItems: XmbItem[] = folders.map(({ collection, count }) => ({
-      id: `collection-${collection.id}`,
-      kind: "folder",
-      title: collection.title,
-      subtitle: `${count} ${section === "projects" ? (count === 1 ? "project" : "projects") : (count === 1 ? "post" : "posts")}`,
-      description: collection.description,
-      image: collection.image,
-      action: "open-collection",
-      actionValue: collection.id,
-      activationLabel: "Open folder",
+  const other = ungrouped.map((entry) => ({
+    ...mapEntry(entry),
+    ...(folders.length > 0 ? { groupId: "ungrouped", groupTitle: "Other" } : {}),
   }));
 
-  return [...folderItems, ...ungrouped.map(mapEntry)];
+  return [...grouped, ...other];
 }
 
 /**
@@ -114,11 +92,8 @@ function collectionItems<T extends { collectionId?: string }>(
 export function buildXmbCategories({
   hero,
   workItems,
-  experienceItems,
   posts,
-  contact,
   collections,
-  openCollectionId,
 }: BuildCategoriesInput): XmbCategory[] {
   const categories: XmbCategory[] = [
     {
@@ -145,59 +120,12 @@ export function buildXmbCategories({
       items: workItems.map(projectItem),
     },
     {
-      id: "experience",
-      label: "Experience",
-      icon: ExperienceIcon,
-      items: experienceItems.map((e, idx) => ({
-        id: `exp-${idx}`,
-        kind: "experience",
-        title: e.company,
-        image: e.image,
-        showcase: e.showcase,
-        subtitle: e.role,
-        period: e.period,
-        description: e.description,
-        highlights: e.highlights,
-        tags: e.tags,
-      })),
-    },
-    {
       id: "blog",
-      label: "Blog",
+      label: "Writing",
       icon: BlogIcon,
-      items: collectionItems("blog", collections, openCollectionId, posts, postItem),
+      items: collectionItems("blog", collections, posts, postItem),
     },
-    {
-      id: "contact",
-      label: "Contact",
-      icon: ContactIcon,
-      items: [
-        {
-          id: "contact-email",
-          kind: "contact",
-          title: "Email",
-          subtitle: contact.email,
-          description: `Direct contact — ${contact.responseTime}`,
-          href: `mailto:${contact.email}`,
-        },
-        {
-          id: "contact-github",
-          kind: "contact",
-          title: "GitHub",
-          subtitle: contact.githubUrl,
-          description: "Open profile on GitHub",
-          href: contact.githubUrl,
-        },
-        {
-          id: "contact-linkedin",
-          kind: "contact",
-          title: "LinkedIn",
-          subtitle: contact.linkedinUrl,
-          description: "Connect on LinkedIn",
-          href: contact.linkedinUrl,
-        },
-      ],
-    },
+
   ];
 
   return categories.filter((category) => category.id !== "projects" || category.items.length > 0);

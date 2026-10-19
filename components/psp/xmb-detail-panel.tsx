@@ -16,13 +16,10 @@ export function XmbDetailPanel({
   onActivate,
 }: XmbDetailPanelProps) {
   return (
-    <div
-      className="absolute bottom-[10%] left-[var(--psp-details-left)] right-[9%] z-20 overflow-y-auto"
-      style={{ top: "calc(var(--psp-axis-top) + 126px)" }}
-    >
+    <div className="psp-xmb-details absolute z-20 overflow-y-auto overscroll-contain">
         {activeItem && (
           <div
-            className="flex max-w-xl flex-col gap-3 border-l border-white/15 pl-7"
+            className="psp-xmb-detail-inner flex max-w-[36rem] flex-col gap-3"
             style={{ fontFamily: activeItem.fontFamily }}
           >
             {activeItem.kind === "experience" ? (

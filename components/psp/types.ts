@@ -6,6 +6,9 @@ export interface XmbItem {
   id: string;
   kind?: "home" | "project" | "experience" | "post" | "contact" | "folder";
   title: string;
+  // Optional non-selectable heading for a contiguous group of content entries.
+  groupId?: string;
+  groupTitle?: string;
   eyebrow?: string;
   subtitle?: string;
   period?: string;
