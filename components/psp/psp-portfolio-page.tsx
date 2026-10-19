@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import type {
   PortfolioWork,
@@ -39,6 +39,28 @@ export function PspPortfolioPage({
   collections,
 }: PspPortfolioPageProps) {
   const [expandedItem, setExpandedItem] = useState<XmbItem | null>(null);
+  const [focusStage, setFocusStage] = useState<0 | 1 | 2 | 3>(0);
+  const focusWasOpenedRef = useRef(false);
+
+  // Staged focus sequence: horizontal shift -> vertical expansion -> content.
+  // Closing reverses these stages so the original preview stays continuous.
+  useEffect(() => {
+    if (expandedItem) focusWasOpenedRef.current = true;
+    if (!expandedItem && !focusWasOpenedRef.current) return;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const handle = window.setTimeout(() => setFocusStage(expandedItem ? 3 : 0), 0);
+      return () => window.clearTimeout(handle);
+    }
+
+    const steps: [number, 0 | 1 | 2 | 3][] = expandedItem
+      ? [[0, 1], [190, 2], [395, 3]]
+      : [[0, 2], [125, 1], [340, 0]];
+    const handles = steps.map(([delay, stage]) =>
+      window.setTimeout(() => setFocusStage(stage), delay)
+    );
+    return () => handles.forEach((handle) => window.clearTimeout(handle));
+  }, [expandedItem]);
 
   const categories = useMemo(
     () => buildXmbCategories({
@@ -124,8 +146,15 @@ export function PspPortfolioPage({
         return;
       }
 
-      // Let focused social links handle Enter and arrow keys normally.
-      if (event.target instanceof HTMLElement && event.target.closest("a")) return;
+      // Let focused controls perform their native action on Enter instead of
+      // accidentally activating the currently selected XMB item.
+      if (event.target instanceof HTMLElement) {
+        if (event.target.closest("a")) return;
+        if (
+          event.key === "Enter" &&
+          event.target.closest('button, input, select, textarea, [role="button"], [role="link"]')
+        ) return;
+      }
 
       const navKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"];
       if (!navKeys.includes(event.key)) return;
@@ -189,7 +218,8 @@ export function PspPortfolioPage({
 
   const siteName = [hero.firstName, hero.lastName].filter(Boolean).join(" ");
   const focusOpen = expandedItem !== null;
-  const foldingTransition = { duration: 0.44, ease: [0.22, 1, 0.36, 1] as const };
+  const navigationRetracted = focusStage > 0;
+  const foldingTransition = { duration: 0.17, ease: [0.2, 0.75, 0.3, 1] as const };
 
   const themeStyle = {
     ...getPspThemeStyle(activeItem?.showcase),
@@ -230,11 +260,10 @@ export function PspPortfolioPage({
 
           <motion.div
             className="pointer-events-none absolute inset-0 z-10"
-            inert={focusOpen}
-            aria-hidden={focusOpen}
-            animate={{ y: focusOpen ? -65 : 0, opacity: focusOpen ? 0 : 1 }}
+            inert={navigationRetracted}
+            aria-hidden={navigationRetracted}
+            animate={{ y: navigationRetracted ? -65 : 0, opacity: navigationRetracted ? 0 : 1 }}
             transition={foldingTransition}
-            style={{ pointerEvents: focusOpen ? "none" : "auto" }}
           >
             <XmbHorizontalAxis
               categories={categories}
@@ -244,12 +273,11 @@ export function PspPortfolioPage({
           </motion.div>
 
           <motion.div
-            className="absolute inset-0 z-10"
-            inert={focusOpen}
-            aria-hidden={focusOpen}
-            animate={{ y: focusOpen ? -110 : 0, opacity: focusOpen ? 0 : 1 }}
+            className="pointer-events-none absolute inset-0 z-10"
+            inert={navigationRetracted}
+            aria-hidden={navigationRetracted}
+            animate={{ y: navigationRetracted ? -110 : 0, opacity: navigationRetracted ? 0 : 1 }}
             transition={foldingTransition}
-            style={{ pointerEvents: focusOpen ? "none" : "auto" }}
           >
             <XmbVerticalAxis
               items={activeCategory.items}
@@ -259,40 +287,12 @@ export function PspPortfolioPage({
             />
           </motion.div>
 
-          <motion.div
-            className="absolute inset-0 z-10"
-            inert={focusOpen}
-            aria-hidden={focusOpen}
-            animate={{ x: focusOpen ? -60 : 0, opacity: focusOpen ? 0 : 1 }}
-            transition={foldingTransition}
-            style={{ pointerEvents: focusOpen ? "none" : "auto" }}
-          >
-            <XmbDetailPanel
-              activeItem={activeItem}
-              onActivate={activeItem?.activationLabel ? () => activateItem(activeItem) : undefined}
-            />
-          </motion.div>
-
-          <motion.p
-            aria-hidden={focusOpen}
-            className="pointer-events-none absolute bottom-8 right-[var(--psp-edge)] z-10 text-xs text-white/35"
-            animate={{ opacity: focusOpen ? 0 : 1 }}
-            transition={{ duration: 0.2 }}
-          >
-            Arrow keys to browse · Enter to open
-          </motion.p>
-
-          <AnimatePresence initial={false}>
-            {expandedItem && (
-              <XmbExpandedDetail
-                key={expandedItem.id}
-                item={expandedItem}
-                variant="desktop"
-                siteName={siteName}
-                onClose={closeExpandedItem}
-              />
-            )}
-          </AnimatePresence>
+          <XmbDetailPanel
+            activeItem={activeItem}
+            onActivate={activeItem?.activationLabel ? () => activateItem(activeItem) : undefined}
+            focusStage={focusStage}
+            onClose={closeExpandedItem}
+          />
 
           <p className="sr-only" aria-live="polite">
             {expandedItem ? `Open: ${expandedItem.title}` : `${activeCategory.label}: ${activeItem?.title}`}

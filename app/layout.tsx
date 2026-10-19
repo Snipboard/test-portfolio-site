@@ -9,6 +9,7 @@ import {
 import "./globals.css";
 import "../styles/portfolio.css";
 import { getThemeStyle } from "@/lib/theme";
+import { FocusNavigationIntent } from "@/components/ui/focus-navigation-intent";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -45,7 +46,10 @@ export default function RootLayout({
       className={`${bricolage.variable} ${dmSans.variable} ${geistMono.variable} ${syne.variable} ${spaceGrotesk.variable} h-full antialiased`}
       style={getThemeStyle("dark")}
     >
-      <body className="flex min-h-full flex-col bg-background text-foreground">{children}</body>
+      <body className="flex min-h-full flex-col bg-background text-foreground">
+        <FocusNavigationIntent />
+        {children}
+      </body>
     </html>
   );
 }

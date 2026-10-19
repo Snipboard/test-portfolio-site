@@ -12,6 +12,31 @@ body {
   font-family: var(--font-dm-sans), Arial, Helvetica, sans-serif;
 }
 
+/* Show pointer feedback on actionable elements without leaving behind
+   a focus box after click or Enter. Tab focus gets a subtle underline instead. */
+:where(button:not(:disabled), a[href], [role="button"]:not([aria-disabled="true"]), summary) {
+  cursor: pointer;
+}
+
+:where(button:disabled, [aria-disabled="true"]) {
+  cursor: default;
+}
+
+:is(button, a[href], [role="button"], summary):focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+html[data-focus-navigation="tab"] :is(button, a[href], [role="button"], summary):focus-visible {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+html[data-focus-navigation="tab"] :is(button, a[href], [role="button"], summary):focus-visible svg {
+  filter: brightness(1.35);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -67,6 +92,22 @@ body::selection {
   --psp-navigation-width: clamp(14.5rem, 22vw, 20rem);
   --psp-column-gap: clamp(3rem, 5vw, 5.5rem);
   --psp-details-left: calc(var(--psp-navigation-left) + var(--psp-navigation-width) + var(--psp-column-gap));
+  /* The preview uses the same text measure as the expanded writing/project
+     column, so heading and description lines do not reflow mid-transition. */
+  --psp-detail-indent: clamp(1.5rem, 2.5vw, 2rem);
+  --psp-gallery-gap: clamp(2rem, 5vw, 5rem);
+  --psp-project-scroll-padding: clamp(.75rem, 1.5vw, 1.5rem);
+  --psp-writing-copy-width: calc(min(100vw, 52rem) - 2 * var(--psp-edge));
+  /* Match the project's *usable* text width, excluding its internal scroll padding. */
+  --psp-project-copy-width: calc((min(100vw, 94rem) - 2 * var(--psp-edge) - var(--psp-gallery-gap)) * 0.475 - var(--psp-project-scroll-padding));
+  --psp-project-single-copy-width: calc(min(46rem, calc(min(100vw, 94rem) - 2 * var(--psp-edge))) - var(--psp-project-scroll-padding));
+  /* Cap the *text* at what fits before the panel moves. The panel can grow
+     during the animation, but its copy must never reflow in any stage.
+     Allow 10px for the preview's possible vertical scrollbar. */
+  --psp-preview-copy-room: calc(100vw - var(--psp-details-left) - var(--psp-edge) - var(--psp-detail-indent) - 11px);
+  --psp-stable-writing-copy-width: min(var(--psp-writing-copy-width), var(--psp-preview-copy-room));
+  --psp-stable-project-copy-width: min(var(--psp-project-copy-width), var(--psp-preview-copy-room));
+  --psp-stable-project-single-copy-width: min(var(--psp-project-single-copy-width), var(--psp-preview-copy-room));
   --psp-row-offset: 7.875rem;
   --psp-rail-bottom: 3.75rem;
 }
@@ -82,25 +123,327 @@ body::selection {
   width: var(--psp-navigation-width);
 }
 
+/* The very same preview panel expands into focus mode.
+   Animate its geometry rather than swapping in an overlay. */
 .psp-xmb-details {
   top: calc(var(--psp-axis-top) + var(--psp-row-offset));
   bottom: clamp(3.5rem, 8vh, 6rem);
   left: var(--psp-details-left);
   right: var(--psp-edge);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, white 22%, transparent) transparent;
+  transition:
+    top 180ms cubic-bezier(.2,.75,.3,1),
+    left 180ms cubic-bezier(.2,.75,.3,1),
+    right 180ms cubic-bezier(.2,.75,.3,1),
+    bottom 180ms cubic-bezier(.2,.75,.3,1);
 }
 
-.psp-xmb-detail-inner {
-  border-left: 1px solid rgb(255 255 255 / 0.15);
-  padding-left: clamp(1.5rem, 2.5vw, 2rem);
+/* Beat 1 ends precisely where the focused copy will sit. This matters
+   especially on wide screens, where the project container is centred. */
+.psp-xmb-details--shifting {
+  left: calc(max(0px, (100vw - 94rem) / 2) + var(--psp-edge) - var(--psp-detail-indent));
 }
 
-/* The expanded XMB is a reading surface, not a second scrolling modal. */
-.psp-focus-scroll {
+.psp-xmb-details--shifting.psp-xmb-details--writing {
+  left: calc(max(0px, (100vw - 52rem) / 2) + var(--psp-edge) - var(--psp-detail-indent));
+}
+
+/* Beat 2: the same panel travels upward and grows into a reading area. */
+.psp-xmb-details--expanded {
+  top: var(--psp-focus-top);
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.psp-focus-toolbar {
+  display: flex;
+  flex: none;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  height: 0;
+  overflow: hidden;
+  padding: 0 var(--psp-edge);
+  border-bottom: 1px solid transparent;
+  color: rgb(255 255 255 / 0.4);
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    height 180ms cubic-bezier(.2,.75,.3,1),
+    padding 180ms cubic-bezier(.2,.75,.3,1),
+    opacity 100ms ease,
+    border-color 100ms ease;
+}
+
+.psp-focus-toolbar--visible {
+  height: 3.5rem;
+  padding: .65rem var(--psp-edge);
+  border-bottom-color: rgb(255 255 255 / 0.1);
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.psp-detail-scroll {
+  min-height: 0;
+}
+
+.psp-xmb-details--expanded .psp-detail-scroll {
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, white 20%, transparent) transparent;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Focused projects have one full-width scrolling surface, placing its
+   scrollbar at the window's right edge. The article moves with that scroll,
+   but the gallery stays pinned at its natural (non-stretched) height. */
+.psp-xmb-details--expanded.psp-xmb-details--project .psp-detail-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* Reserve the track before the detail body appears, avoiding width shifts. */
+  scrollbar-gutter: stable;
+}
+
+.psp-xmb-details--expanded.psp-xmb-details--project .psp-xmb-detail-layout {
+  height: auto;
+  min-height: 100%;
+  padding-bottom: clamp(1.5rem, 4vh, 2.5rem);
+}
+
+.psp-xmb-details--expanded.psp-xmb-details--project .psp-xmb-detail-inner {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+  padding-right: var(--psp-project-scroll-padding);
+}
+
+.psp-xmb-details--expanded.psp-xmb-details--project .psp-detail-gallery {
+  position: sticky;
+  /* Match the grid's top padding to avoid even a small initial jump. */
+  top: clamp(1.5rem, 4vh, 2.5rem);
+  height: auto;
+  min-height: 0;
+  align-self: start;
+  overflow: visible;
+}
+
+/* Writing alone becomes a full-height reading surface. The initial scroll
+   padding preserves the focus layout; as it scrolls away, text can rise
+   through the opening in the divider and reach the top of the viewport. */
+.psp-xmb-details--expanded.psp-xmb-details--writing {
+  top: 0;
+  left: 0;
+}
+
+.psp-xmb-details--writing .psp-detail-scroll {
+  padding-top: 0;
+  transition: padding-top 180ms cubic-bezier(.2, .75, .3, 1);
+}
+
+.psp-xmb-details--expanded.psp-xmb-details--writing .psp-detail-scroll {
+  padding-top: calc(var(--psp-focus-top) + 3.5rem);
+}
+
+.psp-xmb-details--expanded.psp-xmb-details--writing .psp-focus-toolbar {
+  position: absolute;
+  inset-inline: 0;
+  top: var(--psp-focus-top);
+  z-index: 2;
+  border-bottom-color: transparent;
+  pointer-events: none;
+}
+
+.psp-xmb-details--writing .psp-focus-toolbar button {
+  pointer-events: auto;
+}
+
+.psp-writing-divider {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+}
+
+.psp-writing-divider__half {
+  position: absolute;
+  top: 0;
+  height: 1px;
+  width: 50%;
+  background: rgb(255 255 255 / .1);
+}
+
+.psp-writing-divider__half--left {
+  left: 0;
+  transform-origin: left center;
+}
+
+.psp-writing-divider__half--right {
+  right: 0;
+  transform-origin: right center;
+}
+
+.psp-xmb-detail-layout {
+  /* Avoid percentage widths: they change as the stage-1 panel slides left.
+     Widths below stay constant until the focused grid is established. */
+  width: calc(var(--psp-stable-project-copy-width) + var(--psp-detail-indent) + 1px);
+  max-width: none;
+  margin-left: 0;
+  padding: 0;
+  transition:
+    padding 180ms cubic-bezier(.2,.75,.3,1),
+    margin-left 180ms cubic-bezier(.2,.75,.3,1);
+}
+
+.psp-xmb-detail-layout--writing {
+  width: calc(var(--psp-stable-writing-copy-width) + var(--psp-detail-indent) + 1px);
+}
+
+.psp-xmb-detail-layout--project:not(.psp-xmb-detail-layout--with-gallery) {
+  width: calc(var(--psp-stable-project-single-copy-width) + var(--psp-detail-indent) + 1px);
+}
+
+.psp-xmb-detail-inner {
+  /* Keep the actual line measure fixed while its inset animates. With the
+     default border-box sizing, the stage-2 padding transition momentarily
+     steals space from the text and causes a visible rewrap. */
+  box-sizing: content-box;
+  width: var(--psp-stable-project-copy-width);
+  min-width: 0;
+  border-left: 1px solid rgb(255 255 255 / 0.15);
+  padding-left: var(--psp-detail-indent);
+  transition: padding-left 180ms cubic-bezier(.2,.75,.3,1);
+}
+
+.psp-xmb-detail-layout--writing .psp-xmb-detail-inner {
+  width: var(--psp-stable-writing-copy-width);
+}
+
+.psp-xmb-detail-layout--project:not(.psp-xmb-detail-layout--with-gallery) .psp-xmb-detail-inner {
+  width: var(--psp-stable-project-single-copy-width);
+}
+
+/* The preview's left rule belongs to shortform only (stage 0).
+   Keep its 1px space during horizontal movement to avoid text reflow,
+   but conceal the rule from stage 1 onward in both directions. */
+.psp-xmb-details--shifting .psp-xmb-detail-inner {
+  border-left-color: transparent;
+}
+
+.psp-xmb-detail-layout--expanded,
+.psp-xmb-detail-layout--writing.psp-xmb-detail-layout--expanded,
+.psp-xmb-detail-layout--project.psp-xmb-detail-layout--expanded {
+  width: 100%;
+  max-width: 94rem;
+  /* Use an animatable, explicit centre offset rather than auto margins:
+     auto re-centres instantly when the outer panel expands at beat two. */
+  margin-left: max(0px, calc((100vw - 94rem) / 2));
+  margin-right: 0;
+  padding: clamp(1.5rem, 4vh, 2.5rem) var(--psp-edge) 6rem;
+}
+
+.psp-xmb-detail-layout--expanded .psp-xmb-detail-inner {
+  border-left: 0;
+  padding-left: 0;
+}
+
+/* Copy width is the content width in every stage, including during the
+   animated left inset. The project's right scroll padding sits outside it. */
+.psp-xmb-detail-layout--expanded.psp-xmb-detail-layout--writing .psp-xmb-detail-inner {
+  width: var(--psp-stable-writing-copy-width);
+}
+
+.psp-xmb-detail-layout--expanded.psp-xmb-detail-layout--project.psp-xmb-detail-layout--with-gallery .psp-xmb-detail-inner {
+  width: var(--psp-stable-project-copy-width);
+}
+
+/* Projects without artwork retain the same line measure when expanded. */
+.psp-xmb-detail-layout--expanded.psp-xmb-detail-layout--project:not(.psp-xmb-detail-layout--with-gallery) .psp-xmb-detail-inner {
+  width: var(--psp-stable-project-single-copy-width);
+}
+
+.psp-xmb-detail-layout--writing.psp-xmb-detail-layout--expanded {
+  max-width: 52rem;
+  margin-left: max(0px, calc((100vw - 52rem) / 2));
+  margin-right: 0;
+}
+
+.psp-xmb-detail-layout--gallery {
+  display: grid;
+  align-items: start;
+  grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+  gap: var(--psp-gallery-gap);
+}
+
+.psp-detail-gallery {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+}
+
+.psp-detail-title {
+  margin-top: .6rem;
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+.psp-detail-description {
+  margin-top: .85rem;
+  font-size: .9375rem;
+  line-height: 1.6rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.psp-xmb-details--expanded .psp-detail-description {
+  display: block;
+  overflow: visible;
+  max-width: 46rem;
+  color: rgb(255 255 255 / 0.72);
+}
+
+.psp-detail-note {
+  margin-top: .85rem;
+}
+
+.psp-detail-open {
+  display: block;
+  width: fit-content;
+  margin-top: 1.15rem;
+}
+
+.psp-detail-extra {
+  min-width: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .psp-xmb-details,
+  .psp-xmb-detail-layout,
+  .psp-xmb-detail-inner,
+  .psp-focus-toolbar,
+  .psp-xmb-details--writing .psp-detail-scroll,
+  .psp-detail-title,
+  .psp-detail-description {
+    transition: none;
+  }
 }
 
 /* Keep the desktop XMB usable in a narrower browser window instead of

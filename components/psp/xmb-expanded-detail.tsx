@@ -101,11 +101,11 @@ export function XmbExpandedDetail({
           {isPost ? (
             <article className="mx-auto max-w-[48rem]">
               {item.date && <time className="text-sm text-[var(--psp-accent)]">{item.date}</time>}
-              <h1 id={titleId} className="mt-3 text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 id={titleId} className="mt-3 text-2xl font-semibold leading-tight tracking-tight text-white">
                 {item.title}
               </h1>
               {item.description && (
-                <p className="mt-6 max-w-[44rem] text-lg leading-8 text-white/65 sm:text-xl sm:leading-9">
+                <p className="mt-6 max-w-[44rem] text-[15px] leading-6 text-white/65">
                   {item.description}
                 </p>
               )}
@@ -122,7 +122,7 @@ export function XmbExpandedDetail({
               )}
               {item.body && (
                 <div className="mt-9 border-t border-white/15 pt-9">
-                  <MarkdownText variant="body">{item.body}</MarkdownText>
+                  <MarkdownText variant="focus">{item.body}</MarkdownText>
                 </div>
               )}
             </article>
@@ -133,7 +133,7 @@ export function XmbExpandedDetail({
             }>
               <article className="min-w-0">
                 {item.date && <p className="text-sm text-[var(--psp-accent)]">{item.date}</p>}
-                <h1 id={titleId} className="mt-3 text-4xl font-semibold leading-[1.08] tracking-tight text-white sm:text-5xl xl:text-6xl">
+                <h1 id={titleId} className="mt-3 text-2xl font-semibold leading-tight tracking-tight text-white">
                   {item.title}
                 </h1>
                 {(item.eyebrow || item.note) && (
@@ -141,7 +141,7 @@ export function XmbExpandedDetail({
                 )}
                 {item.description && (
                   <div className="mt-6">
-                    <MarkdownText variant="lead">{item.description}</MarkdownText>
+                    <MarkdownText variant="focus">{item.description}</MarkdownText>
                   </div>
                 )}
 
@@ -153,7 +153,7 @@ export function XmbExpandedDetail({
 
                 {item.body && (
                   <section className="mt-10 border-t border-white/15 pt-9" aria-label="Project details">
-                    <MarkdownText variant="body">{item.body}</MarkdownText>
+                    <MarkdownText variant="focus">{item.body}</MarkdownText>
                   </section>
                 )}
 
@@ -162,7 +162,7 @@ export function XmbExpandedDetail({
                     <h2 className="mb-5 text-xs font-semibold uppercase tracking-[0.2em] text-white/45">Highlights</h2>
                     <ul className="space-y-3">
                       {item.highlights.map((highlight) => (
-                        <li key={highlight} className="border-l border-[var(--psp-accent)] pl-4 text-sm leading-6 text-white/70">
+                        <li key={highlight} className="border-l border-[var(--psp-accent)] pl-4 text-[15px] leading-6 text-white/70">
                           {highlight}
                         </li>
                       ))}

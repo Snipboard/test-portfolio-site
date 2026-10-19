@@ -120,12 +120,12 @@ export function PspMobileView({
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--psp-accent)]">{item.eyebrow}</p>
             )}
             <h2 className="mt-1 text-3xl font-bold tracking-tight">{item.title}</h2>
-            {item.subtitle && <p className="mt-2 text-sm text-white/60">{item.subtitle}</p>}
+            {item.subtitle && <p className="mt-2 text-[15px] text-white/60">{item.subtitle}</p>}
             <div className="my-5 h-px bg-white/12" />
             {item.description && <MarkdownText>{item.description}</MarkdownText>}
 
             {item.highlights && item.highlights.length > 0 && (
-              <ul className="mt-5 space-y-2 text-sm text-white/60">
+              <ul className="mt-5 space-y-2 text-[15px] text-white/60">
                 {item.highlights.slice(0, 3).map((highlight) => (
                   <li key={highlight} className="flex gap-2">
                     <span className="text-[var(--psp-accent)]" aria-hidden="true">◆</span>

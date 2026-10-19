@@ -6,10 +6,12 @@ interface ProjectGalleryProps {
   images: string[];
   title: string;
   variant?: "default" | "focus";
+  pinned?: boolean;
 }
 
-export function ProjectGallery({ images, title, variant = "default" }: ProjectGalleryProps) {
+export function ProjectGallery({ images, title, variant = "default", pinned = false }: ProjectGalleryProps) {
   const focused = variant === "focus";
+  const fixed = focused && pinned;
   const [activeIndex, setActiveIndex] = useState(0);
   const activeImage = images[activeIndex];
 
@@ -64,7 +66,22 @@ export function ProjectGallery({ images, title, variant = "default" }: ProjectGa
         </div>
       </div>
 
-      {images.length > 1 && (
+      {images.length > 1 && fixed && (
+        <div className="mt-3 flex shrink-0 flex-wrap items-center justify-center gap-2 pb-1" role="group" aria-label="Choose gallery image">
+          {images.map((src, index) => (
+            <button
+              type="button"
+              key={src + index}
+              onClick={() => setActiveIndex(index)}
+              aria-label={`Show image ${index + 1}`}
+              aria-pressed={index === activeIndex}
+              className={`h-2 w-2 rounded-full transition-colors ${index === activeIndex ? "bg-[var(--psp-accent)]" : "bg-white/25 hover:bg-white/55"}`}
+            />
+          ))}
+        </div>
+      )}
+
+      {images.length > 1 && !fixed && (
         <div className="mt-3 flex gap-3 overflow-x-auto pb-2" role="list" aria-label="Choose gallery image">
           {images.map((src, index) => (
             <button

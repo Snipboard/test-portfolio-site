@@ -5,26 +5,28 @@ import remarkGfm from "remark-gfm";
 
 interface MarkdownTextProps {
   children: string;
-  variant?: "compact" | "lead" | "body" | "preview";
+  variant?: "compact" | "lead" | "body" | "preview" | "focus";
 }
 
 export function MarkdownText({ children, variant = "compact" }: MarkdownTextProps) {
   const wrapperClass = variant === "lead"
-    ? "space-y-4 text-lg leading-8 text-white/75 sm:text-xl sm:leading-9"
+    ? "space-y-4 text-[19px] leading-8 text-white/75 sm:text-[21px] sm:leading-9"
     : variant === "body"
-      ? "space-y-6 text-lg leading-8 text-white/70"
+      ? "space-y-6 text-[19px] leading-8 text-white/70"
+      : variant === "focus"
+        ? "space-y-4 text-[15px] leading-6 text-white/70"
       : variant === "preview"
-        ? "space-y-2 text-sm leading-6 text-white/70"
-        : "space-y-3 text-base leading-relaxed text-white/75 drop-shadow";
+        ? "space-y-2 text-[15px] leading-6 text-white/70"
+        : "space-y-3 text-[17px] leading-relaxed text-white/75 drop-shadow";
 
   return (
     <div className={wrapperClass}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          h1: ({ children: content }) => <h3 className={`${variant === "preview" ? "text-lg" : "text-2xl"} font-bold text-white`}>{content}</h3>,
-          h2: ({ children: content }) => <h3 className={`${variant === "preview" ? "text-base" : "text-xl"} font-bold text-white`}>{content}</h3>,
-          h3: ({ children: content }) => <h4 className="text-lg font-semibold text-white">{content}</h4>,
+          h1: ({ children: content }) => <h3 className={`${variant === "preview" || variant === "focus" ? "text-lg" : "text-2xl"} font-bold text-white`}>{content}</h3>,
+          h2: ({ children: content }) => <h3 className={`${variant === "preview" || variant === "focus" ? "text-base" : "text-xl"} font-bold text-white`}>{content}</h3>,
+          h3: ({ children: content }) => <h4 className={`${variant === "focus" ? "text-base" : "text-lg"} font-semibold text-white`}>{content}</h4>,
           p: ({ children: content }) => <p>{content}</p>,
           ul: ({ children: content }) => <ul className="ml-5 list-disc space-y-1 marker:text-[var(--psp-accent)]">{content}</ul>,
           ol: ({ children: content }) => <ol className="ml-5 list-decimal space-y-1 marker:text-[var(--psp-accent)]">{content}</ol>,
