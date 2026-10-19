@@ -16,7 +16,7 @@ export function XmbHorizontalAxis({
   locked = false,
 }: XmbHorizontalAxisProps) {
   return (
-    <nav className="absolute inset-x-0 top-[24%] z-20 h-28 overflow-hidden" aria-label="Portfolio sections">
+    <nav className="absolute inset-x-0 top-[29%] z-20 h-28 overflow-hidden" aria-label="Portfolio sections">
       {categories.map((category, index) => {
         const active = index === activeCategoryIndex;
         const Icon = category.icon;

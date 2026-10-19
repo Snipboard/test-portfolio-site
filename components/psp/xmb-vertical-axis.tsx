@@ -17,7 +17,7 @@ export function XmbVerticalAxis({
   onItemActivate,
 }: XmbVerticalAxisProps) {
   return (
-    <nav className="psp-xmb-rail pointer-events-none absolute inset-0 z-10 overflow-hidden" aria-label="Items in selected section">
+    <nav className="psp-xmb-rail pointer-events-none absolute inset-0 z-10 overflow-hidden [clip-path:inset(18%_0_0_0)]" aria-label="Items in selected section">
       {items.map((item, index) => {
         const distance = index - activeItemIndex;
         const active = distance === 0;
@@ -31,7 +31,7 @@ export function XmbVerticalAxis({
             className={`psp-xmb-item pointer-events-auto absolute left-[18%] flex w-[27%] items-center gap-4 rounded-sm py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
               active ? "font-semibold text-white" : "text-white/55 hover:text-white"
             }`}
-            style={{ top: `calc(24% + ${offset}px)`, fontFamily: item.fontFamily }}
+            style={{ top: `calc(29% + ${offset}px)`, fontFamily: item.fontFamily }}
           >
             <XmbItemIcon item={item} active={active} />
             <span className={`min-w-0 truncate ${active ? "text-xl" : "text-base"}`}>{item.title}</span>

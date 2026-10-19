@@ -20,7 +20,6 @@ import { XmbExpandedDetail } from "./xmb-expanded-detail";
 import { getPspThemeStyle } from "./psp-showcase-style";
 import type { XmbItem } from "./types";
 import { NEUTRAL_SHOWCASE } from "@/lib/showcase";
-import { XmbSceneLayer } from "./xmb-scene-layer";
 
 interface PspPortfolioPageProps {
   workItems: PortfolioWork[];
@@ -207,7 +206,6 @@ export function PspPortfolioPage({
 
         <div className="psp-shell psp-browse-shell fixed inset-0 z-40 hidden select-none overflow-hidden text-white lg:block">
           <XmbHeader name={`${hero.firstName} ${hero.lastName}`} tagline={hero.tagline || "Software Engineer"} />
-          <XmbSceneLayer item={activeItem} />
 
           <XmbHorizontalAxis
             categories={categories}

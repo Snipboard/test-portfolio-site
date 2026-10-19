@@ -5,7 +5,7 @@ import remarkGfm from "remark-gfm";
 
 interface MarkdownTextProps {
   children: string;
-  variant?: "compact" | "lead" | "body";
+  variant?: "compact" | "lead" | "body" | "preview";
 }
 
 export function MarkdownText({ children, variant = "compact" }: MarkdownTextProps) {
@@ -13,15 +13,17 @@ export function MarkdownText({ children, variant = "compact" }: MarkdownTextProp
     ? "space-y-4 text-lg leading-8 text-white/75 sm:text-xl sm:leading-9"
     : variant === "body"
       ? "space-y-6 text-lg leading-8 text-white/70"
-      : "space-y-3 text-base leading-relaxed text-white/75 drop-shadow";
+      : variant === "preview"
+        ? "space-y-2 text-sm leading-6 text-white/70"
+        : "space-y-3 text-base leading-relaxed text-white/75 drop-shadow";
 
   return (
     <div className={wrapperClass}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          h1: ({ children: content }) => <h3 className="text-2xl font-bold text-white">{content}</h3>,
-          h2: ({ children: content }) => <h3 className="text-xl font-bold text-white">{content}</h3>,
+          h1: ({ children: content }) => <h3 className={`${variant === "preview" ? "text-lg" : "text-2xl"} font-bold text-white`}>{content}</h3>,
+          h2: ({ children: content }) => <h3 className={`${variant === "preview" ? "text-base" : "text-xl"} font-bold text-white`}>{content}</h3>,
           h3: ({ children: content }) => <h4 className="text-lg font-semibold text-white">{content}</h4>,
           p: ({ children: content }) => <p>{content}</p>,
           ul: ({ children: content }) => <ul className="ml-5 list-disc space-y-1 marker:text-[var(--psp-accent)]">{content}</ul>,
