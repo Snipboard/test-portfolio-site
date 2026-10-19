@@ -103,3 +103,26 @@ test("invalid JSON and network failures surface Atlas errors", async () => {
     await assert.rejects(getPortfolioContent(), /Could not reach the Atlas portfolio API/);
   });
 });
+
+test("generates fallback slugs and orders Atlas project collections", async () => {
+  await withAtlasFetch(async () => {
+    global.fetch = (async () => new Response(JSON.stringify({
+      hero: published.hero,
+      contact: published.contact,
+      work: [{ title: "ASCII Torus Demo!", summary: "3D projection", year: "2026" }],
+      experience: [],
+      posts: [{ title: "Project Notes!", body: "A short post" }],
+      collections: [
+        { id: "zeta", title: "Zeta", section: "projects", order: 2 },
+        { id: "alpha", title: "Alpha", section: "projects", order: 1 },
+        { id: "beta", title: "Beta", section: "projects", order: 2 },
+      ],
+    }), { status: 200 })) as typeof fetch;
+
+    const content = await getPortfolioContent();
+    assert.equal(content.workItems[0]?.slug, "ascii-torus-demo");
+    assert.equal(content.posts[0]?.slug, "project-notes");
+    assert.deepEqual(content.collections.map(({ id }) => id), ["alpha", "beta", "zeta"]);
+    assert.deepEqual(content.collections.map(({ slug }) => slug), ["alpha", "beta", "zeta"]);
+  });
+});
