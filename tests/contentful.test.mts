@@ -135,6 +135,8 @@ test("maps a complete Contentful portfolio response", withContentfulEnvironment(
   const requestedTypes: string[] = [];
   global.fetch = (async (input) => {
     const url = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+    // Atlas-first probing must not be counted as a Contentful API request.
+    if (url.hostname === "affan-atlas.duckdns.org") return new Response(null, { status: 503 });
     const contentType = url.searchParams.get("content_type") ?? "";
     requestedTypes.push(contentType);
     assert.equal(url.hostname, "cdn.contentful.com");

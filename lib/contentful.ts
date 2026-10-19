@@ -411,6 +411,13 @@ function mapCollectionEntry(entry: ContentfulEntry, assets: ContentfulAsset[]): 
 }
 
 export async function getPortfolioContent() {
+  // Atlas is the preferred source. Until its complete corpus is published,
+  // keep serving the existing Contentful content without changing page layouts.
+  const { getAtlasPortfolioContent } = await import("./atlas.ts");
+  return (await getAtlasPortfolioContent()) ?? getContentfulPortfolioContent();
+}
+
+async function getContentfulPortfolioContent() {
   const [heroRes, contactRes, workRes, expRes, postsRes, collectionsRes] = await Promise.all([
     getContentfulData("portfolioHero"),
     getContentfulData("portfolioContact"),
