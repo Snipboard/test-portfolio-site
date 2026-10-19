@@ -1,7 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import type { XmbItem, XmbLayoutConfig } from "./types";
+import type { XmbItem } from "./types";
 import { MarkdownText } from "./markdown-text";
 import { XmbExperienceDetail } from "./xmb-experience-detail";
 import { XmbBlogDetail } from "./xmb-blog-detail";
@@ -9,37 +8,18 @@ import { XmbProjectDetail } from "./xmb-project-detail";
 
 interface XmbDetailPanelProps {
   activeItem?: XmbItem;
-  activeCategoryIndex: number;
-  activeItemIndex: number;
-  config: XmbLayoutConfig;
   onActivate?: () => void;
 }
 
 export function XmbDetailPanel({
   activeItem,
-  activeCategoryIndex,
-  activeItemIndex,
-  config,
   onActivate,
 }: XmbDetailPanelProps) {
-  const { crossY, belowClear } = config;
-
   return (
-    <div
-      className="absolute bottom-[3%] left-[48%] right-[6%] overflow-hidden pointer-events-none z-20"
-      style={{
-        top: activeItem?.kind === "project" ? "55%" : `calc(${crossY * 100}% + ${belowClear}px)`,
-      }}
-    >
-      <AnimatePresence initial={false}>
+    <div className="absolute bottom-[12%] left-[43%] right-[8%] top-[36%] z-20 overflow-y-auto border-l border-white/15 pl-10">
         {activeItem && (
-          <motion.div
-            key={`detail-${activeCategoryIndex}-${activeItemIndex}`}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10, transition: { duration: 0.1 } }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="flex flex-col gap-4 max-w-xl pointer-events-auto"
+          <div
+            className="flex max-w-xl flex-col gap-4"
             style={{ fontFamily: activeItem.fontFamily }}
           >
             {activeItem.kind === "experience" ? (
@@ -76,7 +56,7 @@ export function XmbDetailPanel({
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ fontFamily: activeItem.fontFamily }}
-                className="flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold tracking-wide text-white transition hover:border-[var(--psp-accent)] hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]"
+                className="flex w-fit items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold tracking-wide text-white hover:border-[var(--psp-accent)] hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]"
               >
                 <span aria-hidden="true">↓</span>
                 <span>{activeItem.activationLabel}</span>
@@ -87,7 +67,7 @@ export function XmbDetailPanel({
                 onClick={onActivate}
                 disabled={activeItem.activationLabel === "Active"}
                 style={{ fontFamily: activeItem.fontFamily }}
-                className="flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold tracking-wide text-white transition hover:border-[var(--psp-accent)] hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] disabled:cursor-default disabled:opacity-50"
+                className="flex w-fit items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-xs font-semibold tracking-wide text-white hover:border-[var(--psp-accent)] hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] disabled:cursor-default disabled:opacity-50"
               >
                 <span>{activeItem.activationLabel}</span>
               </button>
@@ -119,9 +99,8 @@ export function XmbDetailPanel({
               </div>
             )}
             </>}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </div>
   );
 }

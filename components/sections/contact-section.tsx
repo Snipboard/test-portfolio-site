@@ -1,7 +1,7 @@
 "use client";
 
 import { useReveal } from "@/hooks/use-reveal";
-import type { PortfolioContact } from "@/lib/contentful";
+import type { PortfolioContact } from "@/lib/portfolio-types";
 
 export function ContactSection({ themeAccent, contactData }: { themeAccent: string; contactData: PortfolioContact }) {
   const { ref: contactRef, visible: contactVisible } = useReveal(0.3);

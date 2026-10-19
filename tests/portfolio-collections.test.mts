@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { getCollectionView } from "../lib/portfolio-collections.ts";
-import type { PortfolioCollection } from "../lib/contentful.ts";
+import type { PortfolioCollection } from "../lib/portfolio-types.ts";
 
 const collections: PortfolioCollection[] = [
   { id: "apps", title: "Apps", slug: "apps", section: "projects", description: "", order: 1 },

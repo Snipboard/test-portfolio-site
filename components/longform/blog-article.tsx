@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { PortfolioPost } from "@/lib/contentful";
+import type { PortfolioPost } from "@/lib/portfolio-types";
 import { getPspThemeStyle } from "@/components/psp/psp-showcase-style";
 import { MarkdownText } from "@/components/psp/markdown-text";
 

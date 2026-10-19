@@ -47,86 +47,11 @@ body::selection {
   color: var(--psp-fg);
 }
 
-.psp-ambient {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.psp-ambient::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0.2;
-  background-image: linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 100% 4px;
-  mask-image: linear-gradient(to bottom, transparent, black 25%, black 75%, transparent);
-}
-
-.psp-wave {
-  position: absolute;
-  left: -18%;
-  width: 136%;
-  height: 42%;
-  border-radius: 48% 52% 45% 55%;
-  filter: blur(46px);
-  transform-origin: center;
-  will-change: transform;
-}
-
-.psp-wave-a {
-  bottom: -17%;
-  background: var(--psp-wave-a);
-}
-
-.psp-wave-b {
-  bottom: -26%;
-  background: var(--psp-wave-b);
-}
-
-/* The XMB remains fully usable when animation is disabled. */
-
-@property --psp-bg { syntax: "<color>"; inherits: true; initial-value: #0c0d10; }
-@property --psp-accent { syntax: "<color>"; inherits: true; initial-value: #b9c0c9; }
-@property --psp-ambient-color { syntax: "<color>"; inherits: true; initial-value: #313741; }
-
 .psp-theme-root {
   min-height: 100vh;
   background: var(--psp-bg);
-  transition: --psp-bg 520ms ease, --psp-accent 520ms ease, --psp-ambient-color 520ms ease;
 }
-.psp-theme-root[data-reduce-motion="true"] { transition: none; }
-.psp-showcase-scene { isolation: isolate; }
-.psp-showcase-background {
-  position: absolute; inset: 0; opacity: .14;
-  background-size: cover; background-position: center;
-  mask-image: linear-gradient(90deg, transparent 23%, black 72%);
-}
-.psp-showcase-light {
-  position: absolute; width: 65vw; height: 65vw; right: -13vw; top: -25vw;
-  border-radius: 50%; opacity: .2; filter: blur(100px);
-}
-.psp-showcase-scene[data-motif="grid"]::after,
-.psp-showcase-scene[data-motif="lines"]::after,
-.psp-showcase-scene[data-motif="geometric"]::after {
-  content: ""; position: absolute; inset: 0 0 0 45%; opacity: .12;
-  mask-image: linear-gradient(90deg, transparent, black);
-}
-.psp-showcase-scene[data-motif="grid"]::after { background-image: linear-gradient(90deg, white 1px, transparent 1px), linear-gradient(white 1px, transparent 1px); background-size: 48px 48px; }
-.psp-showcase-scene[data-motif="lines"]::after { background: repeating-linear-gradient(120deg, transparent 0 60px, white 61px, transparent 62px 95px); }
-.psp-showcase-scene[data-motif="geometric"]::after { background: radial-gradient(circle at 70% 45%, transparent 0 16%, white 16.1% 16.3%, transparent 16.4% 26%, white 26.1% 26.3%, transparent 26.4%); }
-.psp-showcase-artwork {
-  position: absolute; right: 4%; top: 7%; width: 40%; height: 47%;
-  display: grid; place-items: center;
-}
-.psp-showcase-artwork img { width: 100%; height: 100%; filter: drop-shadow(0 24px 44px rgba(0,0,0,.48)); }
-.psp-showcase-editorial .psp-showcase-artwork { width: 35%; right: 10%; top: 9%; height: 41%; }
-.psp-showcase-immersive .psp-showcase-artwork { width: 55%; right: -2%; top: 2%; height: 61%; }
-.psp-showcase-minimal .psp-showcase-artwork { width: 29%; right: 12%; top: 12%; height: 32%; opacity: .8; }
-@media (prefers-reduced-motion: reduce) { .psp-theme-root { transition: none; } }
 
-@keyframes psp-ambient-drift { 0%, 100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-3%,3%) scale(1.06); } }
-.psp-showcase-scene[data-motion="subtle"] .psp-showcase-light { animation: psp-ambient-drift 18s ease-in-out infinite; }
-.psp-showcase-scene[data-motion="ambient"] .psp-showcase-light { animation: psp-ambient-drift 12s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .psp-showcase-light { animation: none !important; } }
+.psp-browse-shell {
+  background: var(--psp-bg);
+}

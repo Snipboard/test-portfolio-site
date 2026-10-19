@@ -3,7 +3,6 @@
 import type { XmbCategory } from "./types";
 import { MarkdownText } from "./markdown-text";
 import { HorizontalScrollFade } from "./horizontal-scroll-fade";
-import { PspMobileSettings } from "./psp-mobile-settings";
 import { PspMobileContact } from "./psp-mobile-contact";
 import { XmbExperienceDetail } from "./xmb-experience-detail";
 import { XmbBlogDetail } from "./xmb-blog-detail";
@@ -35,15 +34,8 @@ export function PspMobileView({
   const category = categories[activeCategoryIndex] ?? categories[0];
   const item = category?.items[activeItemIndex] ?? category?.items[0];
 
-  const artwork = item?.showcase?.artworkUrl ?? item?.image ?? item?.gallery?.[0];
-
   return (
     <div className="relative min-h-screen overflow-hidden bg-[var(--psp-bg)] px-5 pb-12 pt-6 text-[var(--psp-fg)]">
-      <div className="psp-ambient" aria-hidden="true">
-        <div className="psp-wave psp-wave-a" />
-        <div className="psp-wave psp-wave-b" />
-      </div>
-
       <header className="relative z-10 border-b border-white/10 pb-5">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{name}</h1>
@@ -59,7 +51,6 @@ export function PspMobileView({
           resetKey="portfolio-sections"
         >
           {categories.map((cat, index) => {
-            const Icon = cat.icon;
             const active = index === activeCategoryIndex;
             return (
               <button
@@ -68,14 +59,13 @@ export function PspMobileView({
                 onClick={() => onCategorySelect(index)}
                 disabled={navigationLocked}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-w-[92px] snap-start flex-col items-center gap-2 border-b-2 px-3 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
+                className={`shrink-0 snap-start border-b-2 px-1 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
                   active
-                    ? "border-[var(--psp-accent)] bg-white/10 text-white"
-                    : "border-white/10 bg-black/15 text-white/40"
+                    ? "border-[var(--psp-accent)] text-white"
+                    : "border-transparent text-white/50"
                 }`}
               >
-                <Icon className="h-7 w-7" />
-                <span className="text-xs font-semibold tracking-wide">{cat.label}</span>
+                {cat.label}
               </button>
             );
           })}
@@ -83,38 +73,23 @@ export function PspMobileView({
       </nav>
 
       <main className="relative z-10 mt-7">
-        {artwork && (item?.kind === "project" || item?.kind === "experience") && (
-          <figure className="mb-8 aspect-[16/10] w-full overflow-hidden border-b border-white/15">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={artwork} alt={`${item.title} showcase`} className="h-full w-full" style={{objectFit:item.showcase?.mediaFit ?? "contain",objectPosition:item.showcase?.mediaPosition ?? "center"}} />
-          </figure>
-        )}
-        {category.id === "settings" ? (
-          <PspMobileSettings category={category} onActivate={onItemActivate} />
-        ) : category.id === "contact" ? (
+        {category.id === "contact" ? (
           <PspMobileContact category={category} onActivate={onItemActivate} />
         ) : (
           <>
             <p className="text-xs uppercase tracking-[0.22em] text-white/40">{category.label}</p>
-            <HorizontalScrollFade
-              className="mt-3"
-              contentClassName="flex gap-2 pb-3"
-              role="list"
-              ariaLabel={`${category.label} items`}
-              resetKey={category.id}
-            >
+            <div className="mt-3 border-t border-white/10" role="group" aria-label={`${category.label} items`}>
               {category.items.map((categoryItem, index) => {
                 const active = index === activeItemIndex;
                 return (
                   <button
                     type="button"
-                    role="listitem"
                     key={categoryItem.id}
                     onClick={() => active ? onItemActivate(index) : onItemSelect(index)}
-                    className={`inline-flex shrink-0 snap-start items-center gap-2 border-b px-2 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
+                    className={`flex w-full items-center gap-3 border-b border-white/10 px-3 py-3 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
                       active
-                        ? "border-white/50 bg-white text-black"
-                        : "border-white/10 bg-white/5 text-white/55"
+                        ? "border-l-2 border-l-[var(--psp-accent)] bg-white/5 text-white"
+                        : "border-l-2 border-l-transparent text-white/55"
                     }`}
                   >
                     {categoryItem.action === "collection-back" ? (
@@ -125,22 +100,16 @@ export function PspMobileView({
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
                         <path d="M3 6h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                       </svg>
-                    ) : categoryItem.image && (
-                      <span
-                        aria-hidden="true"
-                        className="h-6 w-7 bg-contain bg-center bg-no-repeat drop-shadow-sm"
-                        style={{ backgroundImage: `url(${categoryItem.image})` }}
-                      />
-                    )}
+                    ) : null}
                     <span style={{ fontFamily: categoryItem.fontFamily }}>{categoryItem.title}</span>
                   </button>
                 );
               })}
-            </HorizontalScrollFade>
+            </div>
           </>
         )}
 
-        {item && category.id !== "settings" && category.id !== "contact" && (
+        {item && category.id !== "contact" && (
           <section className="mt-5 border-l border-white/15 pl-5" aria-live="polite" style={{ fontFamily: item.fontFamily }}>
             {item.kind === "experience" ? (
               <XmbExperienceDetail item={item} compact />
@@ -190,7 +159,7 @@ export function PspMobileView({
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ fontFamily: item.fontFamily }}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--psp-accent)] px-4 py-3 text-sm font-bold text-black transition active:scale-[0.99]"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--psp-accent)] px-4 py-3 text-sm font-bold text-black"
               >
                 <span aria-hidden="true">↓</span>
                 <span>{item.activationLabel}</span>
@@ -201,7 +170,7 @@ export function PspMobileView({
                 onClick={() => onItemActivate(activeItemIndex)}
                 disabled={item.activationLabel === "Active"}
                 style={{ fontFamily: item.fontFamily }}
-                className="mt-6 w-full rounded-2xl bg-[var(--psp-accent)] px-4 py-3 text-sm font-bold text-black transition active:scale-[0.99] disabled:opacity-50"
+                className="mt-6 w-full rounded-2xl bg-[var(--psp-accent)] px-4 py-3 text-sm font-bold text-black disabled:opacity-50"
               >
                 {item.activationLabel}
               </button>
@@ -214,9 +183,7 @@ export function PspMobileView({
       <footer className="relative z-10 mt-12 border-t border-white/10 pt-5 text-center text-[11px] uppercase tracking-[0.2em] text-white/30">
         {category.id === "contact"
           ? "Choose a channel to get in touch"
-          : category.id === "settings"
-            ? "Preferences are saved on this device"
-            : "Tap a section, then choose an item"}
+          : "Tap a section, then choose an item"}
       </footer>
     </div>
   );

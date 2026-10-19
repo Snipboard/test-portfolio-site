@@ -1,5 +1,8 @@
-import { getPortfolioContent } from "@/lib/contentful";
+import { getPortfolioContent } from "@/lib/atlas";
 import PortfolioPage from "@/components/portfolio-page";
+
+// Resolve published Atlas content at request time, not as a static build artifact.
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const content = await getPortfolioContent();

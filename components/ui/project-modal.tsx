@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import type { PortfolioWork } from "@/lib/contentful";
+import type { PortfolioWork } from "@/lib/portfolio-types";
 
 export function ProjectModal({ item, accent, onClose }: { item: PortfolioWork; accent: string; onClose: () => void }) {
   const [activeImageIdx, setActiveImageIdx] = useState(0);

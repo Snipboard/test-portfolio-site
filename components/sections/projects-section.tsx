@@ -1,6 +1,6 @@
 "use client";
 
-import type { PortfolioWork } from "@/lib/contentful";
+import type { PortfolioWork } from "@/lib/portfolio-types";
 import { useReveal } from "@/hooks/use-reveal";
 
 function ProjectCard({ item, accent, delay, onClick }: { item: PortfolioWork; accent: string; delay: number; onClick: () => void }) {

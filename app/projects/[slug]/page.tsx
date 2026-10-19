@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
-import { getPortfolioContent } from "@/lib/contentful";
+import { getPortfolioContent } from "@/lib/atlas";
 import { ProjectCaseStudy } from "@/components/longform/project-case-study";
+
+// Resolve published Atlas content at request time, not as a static build artifact.
+export const dynamic = "force-dynamic";
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

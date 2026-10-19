@@ -1,4 +1,4 @@
-import type { PortfolioCollection } from "./contentful.ts";
+import type { PortfolioCollection } from "./portfolio-types.ts";
 
 export type CollectionEntry = { collectionId?: string };
 

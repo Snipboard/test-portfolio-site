@@ -1,4 +1,4 @@
-import type { PortfolioWork, PortfolioHero, PortfolioContact, PortfolioExperience, PortfolioPost, PortfolioCollection } from "@/lib/contentful";
+import type { PortfolioWork, PortfolioHero, PortfolioContact, PortfolioExperience, PortfolioPost, PortfolioCollection } from "@/lib/portfolio-types";
 import { PspPortfolioPage } from "@/components/psp/psp-portfolio-page";
 
 // Retained for the legacy header component; the public portfolio always opens in XMB.

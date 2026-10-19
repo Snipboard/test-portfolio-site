@@ -5,32 +5,16 @@ import type {
   PortfolioExperience,
   PortfolioPost,
   PortfolioCollection,
-} from "@/lib/contentful";
-import type { XmbCategory, XmbItem, XmbLayoutConfig } from "./types";
+} from "@/lib/portfolio-types";
+import type { XmbCategory, XmbItem } from "./types";
 import {
   HomeIcon,
   ProjectsIcon,
   ExperienceIcon,
   ContactIcon,
   BlogIcon,
-  SettingsIcon,
 } from "./xmb-icons";
 import { getCollectionView } from "@/lib/portfolio-collections";
-
-/**
- * Layout dimensions configuration.
- * Adjusted for higher vertical placement, larger icons, and generous spacing.
- */
-export const DEFAULT_XMB_CONFIG: XmbLayoutConfig = {
-  crossX: 0.18,        // 24% from left
-  crossY: 0.28,        // Moved higher (28% from top, well above halfway line)
-  hGap: 115,           // Increased horizontal gap between category icons
-  vGap: 64,            // Increased vertical gap between sub-items
-  aboveClear: 110,     // Increased clearance above middle strip
-  belowClear: 140,     // Increased clearance below middle strip for label & spacing
-  iconActiveSize: 84,  // Scaled up active category icon
-  iconInactiveSize: 56,// Scaled up inactive category icon
-};
 
 export interface BuildCategoriesInput {
   hero: PortfolioHero;
@@ -38,7 +22,6 @@ export interface BuildCategoriesInput {
   experienceItems: PortfolioExperience[];
   posts: PortfolioPost[];
   contact: PortfolioContact;
-  reduceMotion: boolean;
   collections: PortfolioCollection[];
   openCollectionId: string | null;
 }
@@ -134,7 +117,6 @@ export function buildXmbCategories({
   experienceItems,
   posts,
   contact,
-  reduceMotion,
   collections,
   openCollectionId,
 }: BuildCategoriesInput): XmbCategory[] {
@@ -213,23 +195,6 @@ export function buildXmbCategories({
           subtitle: contact.linkedinUrl,
           description: "Connect on LinkedIn",
           href: contact.linkedinUrl,
-        },
-      ],
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: SettingsIcon,
-      items: [
-        {
-          id: "motion",
-          kind: "setting",
-          title: "Reduced motion",
-          subtitle: reduceMotion ? "On" : "Off",
-          description: "Reduce springs, drifting light, and interface movement.",
-          action: "motion",
-          selected: reduceMotion,
-          activationLabel: reduceMotion ? "Turn off" : "Turn on",
         },
       ],
     },

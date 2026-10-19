@@ -2,7 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ParticleField } from "@/components/ui/particle-field";
-import type { PortfolioHero } from "@/lib/contentful";
+import type { PortfolioHero } from "@/lib/portfolio-types";
 
 export function HeroSection({ accentColor, heroData }: { accentColor: string; heroData: PortfolioHero }) {
   const { scrollY } = useScroll();

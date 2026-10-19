@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import type { PortfolioExperience } from "@/lib/contentful";
+import type { PortfolioExperience } from "@/lib/portfolio-types";
 
 export function ExperienceSection({ themeAccent, experienceItems }: { themeAccent: string; experienceItems: PortfolioExperience[] }) {
   return (

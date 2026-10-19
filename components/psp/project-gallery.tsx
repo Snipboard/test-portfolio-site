@@ -18,7 +18,7 @@ export function ProjectGallery({ images, title }: ProjectGalleryProps) {
   return (
     <section className="mt-10" aria-label={`${title} gallery`}>
       <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-black/25 shadow-2xl">
-        {/* Contentful asset hosts vary between spaces, so keep this renderer provider-agnostic. */}
+        {/* Atlas media URLs can vary by deployment, so keep this renderer host-agnostic. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           key={activeImage}

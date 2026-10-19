@@ -3,7 +3,7 @@ import { sortByMostRecentYear } from "./portfolio-sort.ts";
 import type {
   PortfolioCollection, PortfolioContact, PortfolioExperience,
   PortfolioHero, PortfolioPost, PortfolioWork,
-} from "./contentful.ts";
+} from "./portfolio-types.ts";
 
 // Public, read-only Atlas endpoint. No Atlas credentials are sent from the portfolio.
 const DEFAULT_ATLAS_URL = "https://affan-atlas.duckdns.org/api/public/portfolio";
@@ -26,20 +26,19 @@ const optional = (value: unknown): string | undefined =>
   typeof value === "string" && value ? value : undefined;
 const slug = (value: string): string => value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-function mapContent(payload: unknown): PortfolioContent | null {
+function mapContent(payload: unknown): PortfolioContent {
   if (!object(payload) || !object(payload.hero) || !object(payload.contact) ||
       !Array.isArray(payload.work) || !Array.isArray(payload.experience) ||
-      !Array.isArray(payload.posts) || !Array.isArray(payload.collections)) return null;
+      !Array.isArray(payload.posts) || !Array.isArray(payload.collections)) {
+    throw new Error("Atlas portfolio API returned an invalid payload structure.");
+  }
 
   const hero = payload.hero;
   const contact = payload.contact;
 
-  // Keep the existing site intact until at least the 2026-10-18 Contentful
-  // inventory (4 projects, 2 roles, 4 posts, 4 collections) has been published.
-  // A single completed entry in each category must not trigger an early cutover.
-  if (!str(hero.firstName) || !str(hero.lastName) || !str(contact.email) ||
-      payload.work.length < 4 || payload.experience.length < 2 ||
-      payload.posts.length < 4 || payload.collections.length < 4) return null;
+  if (!str(hero.firstName) || !str(hero.lastName) || !str(contact.email)) {
+    throw new Error("Atlas portfolio API is missing a published profile or contact.");
+  }
 
   const workItems: PortfolioWork[] = payload.work.flatMap((item: unknown) => {
     if (!object(item) || !str(item.title) || !str(item.summary)) return [];
@@ -105,9 +104,10 @@ function mapContent(payload: unknown): PortfolioContent | null {
       image: optional(item.image),
     }] : []);
 
-  if (!workItems.length || !experience.length || !posts.length || !collections.length ||
-      workItems.length !== payload.work.length || experience.length !== payload.experience.length ||
-      posts.length !== payload.posts.length || collections.length !== payload.collections.length) return null;
+  if (workItems.length !== payload.work.length || experience.length !== payload.experience.length ||
+      posts.length !== payload.posts.length || collections.length !== payload.collections.length) {
+    throw new Error("Atlas portfolio API contains an invalid published entry.");
+  }
 
   return {
     hero: {
@@ -130,16 +130,35 @@ function mapContent(payload: unknown): PortfolioContent | null {
   };
 }
 
-export async function getAtlasPortfolioContent(): Promise<PortfolioContent | null> {
+// Atlas is the only content provider. Fail visibly rather than silently serving stale data.
+// No-store is intentional: newly published Atlas changes should be testable immediately.
+export async function getPortfolioContent(): Promise<PortfolioContent> {
+  const url = process.env.ATLAS_PORTFOLIO_URL || DEFAULT_ATLAS_URL;
+  let parsed: URL;
   try {
-    const url = process.env.ATLAS_PORTFOLIO_URL || DEFAULT_ATLAS_URL;
-    const parsed = new URL(url);
-    if (parsed.protocol !== "https:" && parsed.hostname !== "localhost" && parsed.hostname !== "127.0.0.1") return null;
-    const response = await fetch(parsed, { next: { revalidate: 60 }, signal: AbortSignal.timeout(4000) });
-    if (!response.ok) return null;
-    return mapContent(await response.json());
+    parsed = new URL(url);
   } catch {
-    // Atlas downtime should never blank the currently deployed portfolio.
-    return null;
+    throw new Error("ATLAS_PORTFOLIO_URL is not a valid URL.");
   }
+  if (parsed.protocol !== "https:" && parsed.hostname !== "localhost" && parsed.hostname !== "127.0.0.1") {
+    throw new Error("ATLAS_PORTFOLIO_URL must be HTTPS (except localhost).");
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(parsed, { cache: "no-store", signal: AbortSignal.timeout(8000) });
+  } catch (error) {
+    throw new Error("Could not reach the Atlas portfolio API.", { cause: error });
+  }
+  if (!response.ok) {
+    throw new Error(`Atlas portfolio API returned HTTP ${response.status}.`);
+  }
+
+  let payload: unknown;
+  try {
+    payload = await response.json();
+  } catch {
+    throw new Error("Atlas portfolio API returned invalid JSON.");
+  }
+  return mapContent(payload);
 }
