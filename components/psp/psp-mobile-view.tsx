@@ -7,6 +7,7 @@ import { PspMobileContact } from "./psp-mobile-contact";
 import { XmbExperienceDetail } from "./xmb-experience-detail";
 import { XmbBlogDetail } from "./xmb-blog-detail";
 import { XmbProjectDetail } from "./xmb-project-detail";
+import { XmbItemIcon } from "./xmb-item-icon";
 
 interface PspMobileViewProps {
   categories: XmbCategory[];
@@ -51,6 +52,7 @@ export function PspMobileView({
           resetKey="portfolio-sections"
         >
           {categories.map((cat, index) => {
+            const Icon = cat.icon;
             const active = index === activeCategoryIndex;
             return (
               <button
@@ -59,13 +61,14 @@ export function PspMobileView({
                 onClick={() => onCategorySelect(index)}
                 disabled={navigationLocked}
                 aria-current={active ? "page" : undefined}
-                className={`shrink-0 snap-start border-b-2 px-1 py-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
+                className={`flex min-w-[78px] shrink-0 snap-start flex-col items-center gap-1.5 border-b-2 px-2 py-2 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
                   active
                     ? "border-[var(--psp-accent)] text-white"
                     : "border-transparent text-white/50"
                 }`}
               >
-                {cat.label}
+                <Icon className="h-7 w-7" />
+                <span>{cat.label}</span>
               </button>
             );
           })}
@@ -92,15 +95,7 @@ export function PspMobileView({
                         : "border-l-2 border-l-transparent text-white/55"
                     }`}
                   >
-                    {categoryItem.action === "collection-back" ? (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
-                        <path d="m10 17-5-5 5-5" /><path d="M5 12h14" />
-                      </svg>
-                    ) : categoryItem.kind === "folder" ? (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5" aria-hidden="true">
-                        <path d="M3 6h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                      </svg>
-                    ) : null}
+                    <XmbItemIcon item={categoryItem} active={active} />
                     <span style={{ fontFamily: categoryItem.fontFamily }}>{categoryItem.title}</span>
                   </button>
                 );

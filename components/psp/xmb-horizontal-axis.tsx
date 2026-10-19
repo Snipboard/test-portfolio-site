@@ -16,26 +16,30 @@ export function XmbHorizontalAxis({
   locked = false,
 }: XmbHorizontalAxisProps) {
   return (
-    <nav className="absolute left-[8%] right-[8%] top-[21%] z-20 border-b border-white/15" aria-label="Portfolio sections">
-      <div className="flex items-center gap-8">
-        {categories.map((category, index) => {
-          const active = index === activeCategoryIndex;
-          return (
-            <button
-              type="button"
-              key={category.id}
-              onClick={() => onCategorySelect(index)}
-              disabled={locked}
-              aria-current={active ? "page" : undefined}
-              className={`-mb-px border-b-2 pb-4 text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
-                active ? "border-[var(--psp-accent)] text-white" : "border-transparent text-white/50 hover:text-white"
-              }`}
-            >
+    <nav className="absolute inset-x-0 top-[24%] z-20 h-28 overflow-hidden" aria-label="Portfolio sections">
+      {categories.map((category, index) => {
+        const active = index === activeCategoryIndex;
+        const Icon = category.icon;
+        return (
+          <button
+            type="button"
+            key={category.id}
+            onClick={() => onCategorySelect(index)}
+            disabled={locked}
+            aria-label={`Open ${category.label}`}
+            aria-current={active ? "page" : undefined}
+            className={`psp-xmb-category absolute top-0 flex w-[88px] flex-col items-center gap-2 rounded-sm py-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
+              active ? "text-white" : "text-white/45 hover:text-white/75"
+            }`}
+            style={{ left: `calc(18% + ${(index - activeCategoryIndex) * 108}px - 44px)` }}
+          >
+            <Icon className={active ? "h-14 w-14" : "h-12 w-12"} />
+            <span className={`text-xs font-medium ${active ? "text-white/90" : "text-transparent"}`}>
               {category.label}
-            </button>
-          );
-        })}
-      </div>
+            </span>
+          </button>
+        );
+      })}
     </nav>
   );
 }

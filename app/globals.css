@@ -55,3 +55,22 @@ body::selection {
 .psp-browse-shell {
   background: var(--psp-bg);
 }
+
+.psp-xmb-category {
+  transition: left 110ms linear, color 110ms linear;
+}
+
+.psp-xmb-item {
+  transition: top 110ms linear, color 110ms linear;
+}
+
+.psp-xmb-rail {
+  mask-image: linear-gradient(to bottom, transparent 9%, black 15%, black 88%, transparent 98%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .psp-xmb-category,
+  .psp-xmb-item {
+    transition: none;
+  }
+}

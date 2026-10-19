@@ -16,7 +16,7 @@ export function XmbDetailPanel({
   onActivate,
 }: XmbDetailPanelProps) {
   return (
-    <div className="absolute bottom-[12%] left-[43%] right-[8%] top-[36%] z-20 overflow-y-auto border-l border-white/15 pl-10">
+    <div className="absolute bottom-[10%] left-[48%] right-[8%] top-[43%] z-20 overflow-y-auto border-l border-white/15 pl-10">
         {activeItem && (
           <div
             className="flex max-w-xl flex-col gap-4"

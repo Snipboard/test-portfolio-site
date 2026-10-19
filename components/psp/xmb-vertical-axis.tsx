@@ -1,6 +1,7 @@
 "use client";
 
 import type { XmbItem } from "./types";
+import { XmbItemIcon } from "./xmb-item-icon";
 
 interface XmbVerticalAxisProps {
   items: XmbItem[];
@@ -16,21 +17,24 @@ export function XmbVerticalAxis({
   onItemActivate,
 }: XmbVerticalAxisProps) {
   return (
-    <nav className="absolute bottom-[12%] left-[8%] top-[36%] z-20 w-[29%] overflow-y-auto pr-5" aria-label="Items in selected section">
+    <nav className="psp-xmb-rail pointer-events-none absolute inset-0 z-10 overflow-hidden" aria-label="Items in selected section">
       {items.map((item, index) => {
-        const active = index === activeItemIndex;
+        const distance = index - activeItemIndex;
+        const active = distance === 0;
+        const offset = distance < 0 ? -44 + (distance + 1) * 58 : 126 + distance * 58;
         return (
           <button
             type="button"
             key={item.id}
             onClick={() => active ? onItemActivate(index) : onItemSelect(index)}
             aria-current={active ? "true" : undefined}
-            className={`block w-full border-b border-white/10 px-3 py-4 text-left text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
-              active ? "border-l-2 border-l-[var(--psp-accent)] bg-white/5 font-semibold text-white" : "border-l-2 border-l-transparent text-white/55 hover:bg-white/5 hover:text-white"
+            className={`psp-xmb-item pointer-events-auto absolute left-[18%] flex w-[27%] items-center gap-4 rounded-sm py-1 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
+              active ? "font-semibold text-white" : "text-white/55 hover:text-white"
             }`}
-            style={{ fontFamily: item.fontFamily }}
+            style={{ top: `calc(24% + ${offset}px)`, fontFamily: item.fontFamily }}
           >
-            {item.title}
+            <XmbItemIcon item={item} active={active} />
+            <span className={`min-w-0 truncate ${active ? "text-xl" : "text-base"}`}>{item.title}</span>
           </button>
         );
       })}
