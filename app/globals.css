@@ -60,6 +60,8 @@ body::selection {
   --psp-edge: clamp(2rem, 6vw, 6.5rem);
   --psp-header-top: clamp(1.75rem, 5vh, 3.5rem);
   --psp-header-safe-bottom: calc(var(--psp-header-top) + 7.25rem);
+  /* Focus header sits a little closer to the fixed name and social links. */
+  --psp-focus-top: calc(var(--psp-header-safe-bottom) - 1rem);
   --psp-axis-top: clamp(12rem, 30dvh, 20rem);
   --psp-navigation-left: max(9.5rem, 15.5vw, calc(50% - 35rem));
   --psp-navigation-width: clamp(14.5rem, 22vw, 20rem);
@@ -92,6 +94,13 @@ body::selection {
 .psp-xmb-detail-inner {
   border-left: 1px solid rgb(255 255 255 / 0.15);
   padding-left: clamp(1.5rem, 2.5vw, 2rem);
+}
+
+/* The expanded XMB is a reading surface, not a second scrolling modal. */
+.psp-focus-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, white 20%, transparent) transparent;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Keep the desktop XMB usable in a narrower browser window instead of

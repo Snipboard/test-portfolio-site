@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AnimatePresence, MotionConfig } from "framer-motion";
+import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import type {
   PortfolioWork,
   PortfolioHero,
@@ -73,6 +73,12 @@ export function PspPortfolioPage({
     if (!item) return;
 
     if (item.detailHref) {
+      // An in-place history entry lets browser Back restore the browse state.
+      window.history.pushState(
+        { ...window.history.state, __portfolioFocusItem: item.id },
+        "",
+        window.location.href,
+      );
       setExpandedItem(item);
       return;
     }
@@ -100,12 +106,20 @@ export function PspPortfolioPage({
     activateItem(activeCategory?.items[index]);
   }, [activateItem, activeCategory]);
 
+  const closeExpandedItem = useCallback(() => {
+    if (expandedItem && window.history.state?.__portfolioFocusItem === expandedItem.id) {
+      window.history.back();
+    } else {
+      setExpandedItem(null);
+    }
+  }, [expandedItem]);
+
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (expandedItem) {
         if (event.key === "Escape") {
           event.preventDefault();
-          setExpandedItem(null);
+          closeExpandedItem();
         }
         return;
       }
@@ -138,13 +152,31 @@ export function PspPortfolioPage({
         activateItem(activeItem);
       }
     },
-    [activeCategoryIndex, categoryItemsLength, activeItem, categories.length, activateItem, expandedItem]
+    [activeCategoryIndex, categoryItemsLength, activeItem, categories.length, activateItem, expandedItem, closeExpandedItem]
   );
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [handleKeyDown]);
+
+  useEffect(() => {
+    const onPopState = () => {
+      const id = window.history.state?.__portfolioFocusItem;
+      const categoryIndex = categories.findIndex((category) => category.items.some((item) => item.id === id));
+      if (categoryIndex < 0) {
+        setExpandedItem(null);
+        return;
+      }
+      const items = categories[categoryIndex].items;
+      const itemIndex = items.findIndex((item) => item.id === id);
+      setActiveCategoryIndex(categoryIndex);
+      setActiveItemIndices((previous) => ({ ...previous, [categoryIndex]: itemIndex }));
+      setExpandedItem(items[itemIndex]);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [categories]);
 
   useEffect(() => {
     if (!expandedItem) return;
@@ -155,6 +187,10 @@ export function PspPortfolioPage({
     };
   }, [expandedItem]);
 
+  const siteName = [hero.firstName, hero.lastName].filter(Boolean).join(" ");
+  const focusOpen = expandedItem !== null;
+  const foldingTransition = { duration: 0.44, ease: [0.22, 1, 0.36, 1] as const };
+
   const themeStyle = {
     ...getPspThemeStyle(activeItem?.showcase),
     ["--psp-bg" as string]: NEUTRAL_SHOWCASE.backgroundColor,
@@ -164,53 +200,104 @@ export function PspPortfolioPage({
     <MotionConfig reducedMotion="user">
       <div className="psp-theme-root" style={themeStyle}>
         <div className="block lg:hidden">
-          <PspMobileView
-            categories={categories}
-            contact={contact}
-            name={`${hero.firstName} ${hero.lastName}`}
-            activeCategoryIndex={activeCategoryIndex}
-            activeItemIndex={activeItemIndex}
-            onCategorySelect={selectCategory}
-            onItemSelect={selectItem}
-            onItemActivate={activateItemAtIndex}
-          />
+          <div inert={focusOpen} aria-hidden={focusOpen}>
+            <PspMobileView
+              categories={categories}
+              contact={contact}
+              name={siteName}
+              activeCategoryIndex={activeCategoryIndex}
+              activeItemIndex={activeItemIndex}
+              onCategorySelect={selectCategory}
+              onItemSelect={selectItem}
+              onItemActivate={activateItemAtIndex}
+            />
+          </div>
+          <AnimatePresence initial={false}>
+            {expandedItem && (
+              <XmbExpandedDetail
+                key={expandedItem.id}
+                item={expandedItem}
+                variant="mobile"
+                siteName={siteName}
+                onClose={closeExpandedItem}
+              />
+            )}
+          </AnimatePresence>
         </div>
 
         <div className="psp-shell psp-browse-shell fixed inset-0 z-40 hidden select-none overflow-hidden text-white lg:block">
-          <XmbHeader name={`${hero.firstName} ${hero.lastName}`} contact={contact} />
+          <XmbHeader name={siteName} contact={contact} />
 
-          <XmbHorizontalAxis
-            categories={categories}
-            activeCategoryIndex={activeCategoryIndex}
-            onCategorySelect={selectCategory}
-          />
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-10"
+            inert={focusOpen}
+            aria-hidden={focusOpen}
+            animate={{ y: focusOpen ? -65 : 0, opacity: focusOpen ? 0 : 1 }}
+            transition={foldingTransition}
+            style={{ pointerEvents: focusOpen ? "none" : "auto" }}
+          >
+            <XmbHorizontalAxis
+              categories={categories}
+              activeCategoryIndex={activeCategoryIndex}
+              onCategorySelect={selectCategory}
+            />
+          </motion.div>
 
-          <XmbVerticalAxis
-            items={activeCategory.items}
-            activeItemIndex={activeItemIndex}
-            onItemSelect={selectItem}
-            onItemActivate={activateItemAtIndex}
-          />
+          <motion.div
+            className="absolute inset-0 z-10"
+            inert={focusOpen}
+            aria-hidden={focusOpen}
+            animate={{ y: focusOpen ? -110 : 0, opacity: focusOpen ? 0 : 1 }}
+            transition={foldingTransition}
+            style={{ pointerEvents: focusOpen ? "none" : "auto" }}
+          >
+            <XmbVerticalAxis
+              items={activeCategory.items}
+              activeItemIndex={activeItemIndex}
+              onItemSelect={selectItem}
+              onItemActivate={activateItemAtIndex}
+            />
+          </motion.div>
 
-          <XmbDetailPanel
-            activeItem={activeItem}
-            onActivate={activeItem?.activationLabel ? () => activateItem(activeItem) : undefined}
-          />
+          <motion.div
+            className="absolute inset-0 z-10"
+            inert={focusOpen}
+            aria-hidden={focusOpen}
+            animate={{ x: focusOpen ? -60 : 0, opacity: focusOpen ? 0 : 1 }}
+            transition={foldingTransition}
+            style={{ pointerEvents: focusOpen ? "none" : "auto" }}
+          >
+            <XmbDetailPanel
+              activeItem={activeItem}
+              onActivate={activeItem?.activationLabel ? () => activateItem(activeItem) : undefined}
+            />
+          </motion.div>
 
-          <p className="absolute bottom-8 right-[var(--psp-edge)] z-20 text-xs text-white/35">
+          <motion.p
+            aria-hidden={focusOpen}
+            className="pointer-events-none absolute bottom-8 right-[var(--psp-edge)] z-10 text-xs text-white/35"
+            animate={{ opacity: focusOpen ? 0 : 1 }}
+            transition={{ duration: 0.2 }}
+          >
             Arrow keys to browse · Enter to open
-          </p>
+          </motion.p>
+
+          <AnimatePresence initial={false}>
+            {expandedItem && (
+              <XmbExpandedDetail
+                key={expandedItem.id}
+                item={expandedItem}
+                variant="desktop"
+                siteName={siteName}
+                onClose={closeExpandedItem}
+              />
+            )}
+          </AnimatePresence>
 
           <p className="sr-only" aria-live="polite">
-            {activeCategory.label}: {activeItem?.title}
+            {expandedItem ? `Open: ${expandedItem.title}` : `${activeCategory.label}: ${activeItem?.title}`}
           </p>
         </div>
-
-        <AnimatePresence>
-          {expandedItem && (
-            <XmbExpandedDetail item={expandedItem} onClose={() => setExpandedItem(null)} />
-          )}
-        </AnimatePresence>
       </div>
     </MotionConfig>
   );
