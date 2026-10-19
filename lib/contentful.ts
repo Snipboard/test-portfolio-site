@@ -1,3 +1,4 @@
+import type { ShowcaseConfig } from "./showcase.ts";
 import { sortByMostRecentYear } from "./portfolio-sort.ts";
 
 export type PortfolioLink = {
@@ -23,6 +24,7 @@ export type PortfolioWork = {
   image?: string;
   gallery?: string[];
   collectionId?: string;
+  showcase?: ShowcaseConfig;
 };
 
 export type PortfolioExperience = {
@@ -34,6 +36,7 @@ export type PortfolioExperience = {
   tags: string[];
   accent: string;
   image?: string;
+  showcase?: ShowcaseConfig;
 };
 
 export type PortfolioPost = {

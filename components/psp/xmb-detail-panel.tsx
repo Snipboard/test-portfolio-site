@@ -28,17 +28,17 @@ export function XmbDetailPanel({
     <div
       className="absolute bottom-[3%] left-[48%] right-[6%] overflow-hidden pointer-events-none z-20"
       style={{
-        top: `calc(${crossY * 100}% + ${belowClear}px)`,
+        top: activeItem?.kind === "project" ? "55%" : `calc(${crossY * 100}% + ${belowClear}px)`,
       }}
     >
-      <AnimatePresence mode="wait">
+      <AnimatePresence initial={false}>
         {activeItem && (
           <motion.div
             key={`detail-${activeCategoryIndex}-${activeItemIndex}`}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10, transition: { duration: 0.1 } }}
-            transition={{ type: "spring", stiffness: 300, damping: 28 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="flex flex-col gap-4 max-w-xl pointer-events-auto"
             style={{ fontFamily: activeItem.fontFamily }}
           >

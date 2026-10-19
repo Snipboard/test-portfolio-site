@@ -15,7 +15,6 @@ import {
   BlogIcon,
   SettingsIcon,
 } from "./xmb-icons";
-import { PSP_THEME_NAMES, PSP_THEMES, type PspThemeName } from "./psp-themes";
 import { getCollectionView } from "@/lib/portfolio-collections";
 
 /**
@@ -23,9 +22,9 @@ import { getCollectionView } from "@/lib/portfolio-collections";
  * Adjusted for higher vertical placement, larger icons, and generous spacing.
  */
 export const DEFAULT_XMB_CONFIG: XmbLayoutConfig = {
-  crossX: 0.24,        // 24% from left
+  crossX: 0.18,        // 24% from left
   crossY: 0.28,        // Moved higher (28% from top, well above halfway line)
-  hGap: 180,           // Increased horizontal gap between category icons
+  hGap: 115,           // Increased horizontal gap between category icons
   vGap: 64,            // Increased vertical gap between sub-items
   aboveClear: 110,     // Increased clearance above middle strip
   belowClear: 140,     // Increased clearance below middle strip for label & spacing
@@ -39,9 +38,7 @@ export interface BuildCategoriesInput {
   experienceItems: PortfolioExperience[];
   posts: PortfolioPost[];
   contact: PortfolioContact;
-  themeName: PspThemeName;
   reduceMotion: boolean;
-  settingsView: "root" | "theme";
   collections: PortfolioCollection[];
   openCollectionId: string | null;
 }
@@ -57,6 +54,7 @@ function projectItem(work: PortfolioWork): XmbItem {
     description: work.summary,
     body: work.body,
     image: work.image,
+    showcase: work.showcase,
     gallery: work.gallery,
     highlights: work.outcomes,
     tags: work.tags,
@@ -136,36 +134,10 @@ export function buildXmbCategories({
   experienceItems,
   posts,
   contact,
-  themeName,
   reduceMotion,
-  settingsView,
   collections,
   openCollectionId,
 }: BuildCategoriesInput): XmbCategory[] {
-  const themeItems = [
-    {
-      id: "settings-back",
-      kind: "setting" as const,
-      title: "Back to settings",
-      subtitle: "Settings",
-      description: "Return to the main settings menu.",
-      action: "settings-back" as const,
-      activationLabel: "Go back",
-    },
-    ...PSP_THEME_NAMES.map((name) => ({
-      id: `theme-${name}`,
-      kind: "setting" as const,
-      title: PSP_THEMES[name].label,
-      subtitle: themeName === name ? "Active theme" : "Theme",
-      description: PSP_THEMES[name].description,
-      fontFamily: PSP_THEMES[name].font,
-      action: "theme" as const,
-      actionValue: name,
-      selected: themeName === name,
-      activationLabel: themeName === name ? "Active" : "Apply theme",
-    })),
-  ];
-
   const categories: XmbCategory[] = [
     {
       id: "home",
@@ -188,7 +160,7 @@ export function buildXmbCategories({
       id: "projects",
       label: "Projects",
       icon: ProjectsIcon,
-      items: collectionItems("projects", collections, openCollectionId, workItems, projectItem),
+      items: workItems.map(projectItem),
     },
     {
       id: "experience",
@@ -199,6 +171,7 @@ export function buildXmbCategories({
         kind: "experience",
         title: e.company,
         image: e.image,
+        showcase: e.showcase,
         subtitle: e.role,
         period: e.period,
         description: e.description,
@@ -247,16 +220,7 @@ export function buildXmbCategories({
       id: "settings",
       label: "Settings",
       icon: SettingsIcon,
-      items: settingsView === "theme" ? themeItems : [
-        {
-          id: "settings-theme",
-          kind: "setting",
-          title: "Theme",
-          subtitle: PSP_THEMES[themeName].label,
-          description: "Choose the colour and ambient-light profile for the XMB.",
-          action: "settings-theme",
-          activationLabel: "Open themes",
-        },
+      items: [
         {
           id: "motion",
           kind: "setting",

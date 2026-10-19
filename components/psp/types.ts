@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import type { ShowcaseConfig } from "@/lib/showcase";
 import type { PortfolioLink } from "@/lib/contentful";
 
 export interface XmbItem {
@@ -11,6 +12,7 @@ export interface XmbItem {
   date?: string;
   description?: string;
   image?: string;
+  showcase?: ShowcaseConfig;
   fontFamily?: string;
   gallery?: string[];
   body?: string;
@@ -20,7 +22,7 @@ export interface XmbItem {
   downloadName?: string;
   links?: PortfolioLink[];
   detailHref?: string;
-  action?: "theme" | "motion" | "settings-theme" | "settings-back" | "open-collection" | "collection-back";
+  action?: "motion" | "open-collection" | "collection-back";
   actionValue?: string;
   selected?: boolean;
   activationLabel?: string;

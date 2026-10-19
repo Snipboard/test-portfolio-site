@@ -33,7 +33,7 @@ export function XmbExpandedDetail({ item, onClose }: XmbExpandedDetailProps) {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 18, scale: 0.99 }}
         transition={{ type: "spring", stiffness: 280, damping: 28 }}
-        className="relative mx-auto flex max-h-[calc(100vh-2.5rem)] min-h-[calc(100vh-2.5rem)] max-w-5xl flex-col overflow-hidden rounded-[2rem] border border-white/15 bg-[var(--psp-panel)] shadow-2xl sm:max-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-4rem)]"
+        className="relative mx-auto flex h-full max-w-6xl flex-col overflow-hidden border border-white/15 bg-[var(--psp-panel)] shadow-2xl"
       >
         <button
           type="button"
@@ -44,7 +44,7 @@ export function XmbExpandedDetail({ item, onClose }: XmbExpandedDetailProps) {
           Esc&nbsp;&nbsp;Close
         </button>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-10 pt-20 sm:px-12 sm:pb-8 lg:px-16 lg:pb-6">
+        <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-10 pt-20 sm:px-12 sm:pb-8 lg:px-16 lg:pb-10">
           {item.kind === "post" ? (
             <article className="mx-auto max-w-3xl pb-12">
               <header>
@@ -88,19 +88,13 @@ export function XmbExpandedDetail({ item, onClose }: XmbExpandedDetailProps) {
             )}
           </div>
 
-          {item.tags && item.tags.length > 0 && (
-            <div className="mt-6 flex flex-wrap gap-2">
-              {item.tags.map((tag) => (
-                <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/55">{tag}</span>
-              ))}
-            </div>
-          )}
+          {(item.showcase?.artworkUrl ?? item.image ?? item.gallery?.[0]) && <figure className="mt-9 grid min-h-48 place-items-center bg-black/25 p-3 sm:min-h-72">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={item.showcase?.artworkUrl ?? item.image ?? item.gallery?.[0]} alt={`${item.title} visual preview`} className="max-h-[430px] w-full object-contain" /></figure>}
 
-          <div className="my-6 h-px bg-gradient-to-r from-[var(--psp-accent)] via-white/10 to-transparent opacity-70" />
+          <div className="my-8 h-px bg-white/15" />
 
           <div className={`grid items-start gap-8 ${item.highlights && item.highlights.length > 0 ? "lg:grid-cols-[0.9fr_1.35fr]" : ""}`}>
             {item.highlights && item.highlights.length > 0 && (
-              <section className="grid gap-3 rounded-3xl border border-white/10 bg-black/15 p-6 sm:grid-cols-3 sm:p-8 lg:grid-cols-1" aria-label="Highlights">
+              <section className="grid gap-3 border-l border-[var(--psp-accent)] pl-5 sm:grid-cols-3 lg:grid-cols-1" aria-label="Highlights">
                 {item.highlights.map((highlight) => (
                   <div key={highlight} className="flex gap-3 text-sm leading-6 text-white/65">
                     <span className="mt-1 text-[var(--psp-accent)]" aria-hidden="true">◆</span>

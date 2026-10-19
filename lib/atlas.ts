@@ -1,3 +1,4 @@
+import { parseShowcase, safeMediaUrl } from "./showcase.ts";
 import { sortByMostRecentYear } from "./portfolio-sort.ts";
 import type {
   PortfolioCollection, PortfolioContact, PortfolioExperience,
@@ -57,12 +58,13 @@ function mapContent(payload: unknown): PortfolioContent | null {
       outcomes: strings(item.outcomes),
       tags: strings(item.tags),
       note: str(item.note),
-      href: str(item.href) || "#",
-      repositoryUrl: optional(item.repositoryUrl),
-      liveUrl: optional(item.liveUrl),
+      href: safeMediaUrl(item.href) ?? "#",
+      repositoryUrl: safeMediaUrl(item.repositoryUrl),
+      liveUrl: safeMediaUrl(item.liveUrl),
       links,
-      image: optional(item.image),
-      gallery: strings(item.gallery),
+      image: safeMediaUrl(item.image),
+      gallery: strings(item.gallery).flatMap(url => safeMediaUrl(url) ? [url] : []),
+      showcase: parseShowcase(item.showcase),
       collectionId: optional(item.collectionId),
     }];
   });
@@ -75,7 +77,8 @@ function mapContent(payload: unknown): PortfolioContent | null {
       highlights: strings(item.highlights),
       tags: strings(item.tags),
       accent: str(item.accent) || "#ffffff",
-      image: optional(item.image),
+      image: safeMediaUrl(item.image),
+      showcase: parseShowcase(item.showcase),
     }] : []);
   const posts: PortfolioPost[] = payload.posts.flatMap((item: unknown) =>
     object(item) && str(item.title) && str(item.body) ? [{

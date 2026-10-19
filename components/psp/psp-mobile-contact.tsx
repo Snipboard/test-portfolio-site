@@ -47,9 +47,9 @@ export function PspMobileContact({ category, onActivate }: PspMobileContactProps
             type="button"
             key={contact.id}
             onClick={() => onActivate(index)}
-            className="group flex min-w-0 max-w-full items-center gap-4 overflow-hidden rounded-3xl border border-white/10 bg-[var(--psp-panel)] p-4 text-left shadow-xl backdrop-blur-xl transition active:scale-[0.99] active:bg-white/10"
+            className="group flex min-w-0 max-w-full items-center gap-4 overflow-hidden border-b border-white/15 py-4 text-left transition active:bg-white/5"
           >
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-white/10 bg-white/5 text-[var(--psp-accent)] transition group-active:bg-white/10">
+            <span className="grid h-10 w-10 shrink-0 place-items-center text-[var(--psp-accent)]">
               <ContactGlyph item={contact} />
             </span>
 

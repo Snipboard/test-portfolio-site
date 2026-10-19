@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getPortfolioContent } from "@/lib/contentful";
-import { PortfolioLongform } from "@/components/longform/portfolio-longform";
+import { ProjectCaseStudy } from "@/components/longform/project-case-study";
 
 export default async function ProjectPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -18,17 +18,5 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
     .filter((link): link is { label: string; href: string } => Boolean(link))
     .filter((link, index, allLinks) => allLinks.findIndex((candidate) => candidate.href === link.href) === index);
 
-  return (
-    <PortfolioLongform
-      label="Case study"
-      title={project.title}
-      meta={[project.role, project.year, project.note].filter(Boolean).join(" · ")}
-      excerpt={project.summary}
-      body={project.body || project.summary}
-      tags={project.tags}
-      highlights={project.outcomes}
-      images={project.gallery}
-      links={links}
-    />
-  );
+  return <ProjectCaseStudy project={project} links={links} />;
 }

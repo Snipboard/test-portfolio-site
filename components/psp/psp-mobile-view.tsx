@@ -35,6 +35,8 @@ export function PspMobileView({
   const category = categories[activeCategoryIndex] ?? categories[0];
   const item = category?.items[activeItemIndex] ?? category?.items[0];
 
+  const artwork = item?.showcase?.artworkUrl ?? item?.image ?? item?.gallery?.[0];
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[var(--psp-bg)] px-5 pb-12 pt-6 text-[var(--psp-fg)]">
       <div className="psp-ambient" aria-hidden="true">
@@ -66,7 +68,7 @@ export function PspMobileView({
                 onClick={() => onCategorySelect(index)}
                 disabled={navigationLocked}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-w-[92px] snap-start flex-col items-center gap-2 rounded-2xl border px-3 py-4 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
+                className={`flex min-w-[92px] snap-start flex-col items-center gap-2 border-b-2 px-3 py-3 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
                   active
                     ? "border-[var(--psp-accent)] bg-white/10 text-white"
                     : "border-white/10 bg-black/15 text-white/40"
@@ -81,6 +83,12 @@ export function PspMobileView({
       </nav>
 
       <main className="relative z-10 mt-7">
+        {artwork && (item?.kind === "project" || item?.kind === "experience") && (
+          <figure className="mb-8 aspect-[16/10] w-full overflow-hidden border-b border-white/15">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={artwork} alt={`${item.title} showcase`} className="h-full w-full" style={{objectFit:item.showcase?.mediaFit ?? "contain",objectPosition:item.showcase?.mediaPosition ?? "center"}} />
+          </figure>
+        )}
         {category.id === "settings" ? (
           <PspMobileSettings category={category} onActivate={onItemActivate} />
         ) : category.id === "contact" ? (
@@ -103,7 +111,7 @@ export function PspMobileView({
                     role="listitem"
                     key={categoryItem.id}
                     onClick={() => active ? onItemActivate(index) : onItemSelect(index)}
-                    className={`inline-flex shrink-0 snap-start items-center gap-2 rounded-full border px-4 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
+                    className={`inline-flex shrink-0 snap-start items-center gap-2 border-b px-2 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
                       active
                         ? "border-white/50 bg-white text-black"
                         : "border-white/10 bg-white/5 text-white/55"
@@ -133,7 +141,7 @@ export function PspMobileView({
         )}
 
         {item && category.id !== "settings" && category.id !== "contact" && (
-          <section className="mt-5 rounded-3xl border border-white/12 bg-[var(--psp-panel)] p-6 shadow-2xl backdrop-blur-xl" aria-live="polite" style={{ fontFamily: item.fontFamily }}>
+          <section className="mt-5 border-l border-white/15 pl-5" aria-live="polite" style={{ fontFamily: item.fontFamily }}>
             {item.kind === "experience" ? (
               <XmbExperienceDetail item={item} compact />
             ) : item.kind === "project" ? (

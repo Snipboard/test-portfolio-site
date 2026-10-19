@@ -33,8 +33,12 @@ test("prefers the published Atlas portfolio and maps its public API contract", a
       return new Response(JSON.stringify({
         hero: { firstName: "Atlas", lastName: "User", description: "Hello" },
         contact: { email: "atlas@example.com", githubUrl: "https://github.com/example" },
-        work: Array.from({ length: 4 }, (_, i) => ({ title: `Example Project ${i}`, slug: `example-project-${i}`, year: "2026", summary: "Project summary", gallery: ["https://example.com/gallery.png"], image: "https://example.com/project.png", tags: ["TS"] })),
-        experience: Array.from({ length: 2 }, (_, i) => ({ company: `Example Inc ${i}`, role: "Engineer", period: "2026", description: "Built tools" })),
+        work: Array.from({ length: 4 }, (_, i) => ({ showcase: i === 0 ? {accentColor:"#ee4433",layout:"media-led",artworkUrl:"https://atlas.example.test/media/image"} : i === 1 ? {accentColor:"red",layout:"script",artworkUrl:"javascript:bad"} : undefined, title: `Example Project ${i}`, slug: `example-project-${i}`, year: "2026", summary: "Project summary", gallery: ["https://example.com/gallery.png"], image: "https://example.com/project.png", tags: ["TS"], links: i === 0 ? [
+          { label: "Demo", url: "https://example.com/demo" },
+          { label: "Unsafe", url: "javascript:alert(1)" },
+          { label: "Missing URL" },
+        ] : [] })),
+        experience: Array.from({ length: 2 }, (_, i) => ({ showcase: i === 0 ? {accentColor:"#77aa88",layout:"editorial"} : undefined, company: `Example Inc ${i}`, role: "Engineer", period: "2026", description: "Built tools" })),
         posts: Array.from({ length: 4 }, (_, i) => ({ title: `My Post ${i}`, slug: `my-post-${i}`, body: "Real post body", excerpt: "Excerpt", publishedAt: "2026-10-01T00:00:00.000Z" })),
         collections: Array.from({ length: 4 }, (_, i) => ({ key: i === 0 ? "ai-tools" : `collection-${i}`, title: `AI Tools ${i}`, section: "projects", slug: `collection-${i}`, order: i + 1 })),
       }), { status: 200, headers: { "content-type": "application/json" } });
@@ -45,7 +49,11 @@ test("prefers the published Atlas portfolio and maps its public API contract", a
     assert.equal(content.hero.firstName, "Atlas");
     assert.equal(content.contact.email, "atlas@example.com");
     assert.equal(content.workItems[0]?.image, "https://example.com/project.png");
+    assert.deepEqual(content.workItems[0]?.showcase, {accentColor:"#ee4433",layout:"media-led",artworkUrl:"https://atlas.example.test/media/image"});
+    assert.equal(content.workItems[1]?.showcase, undefined);
+    assert.deepEqual(content.experience[0]?.showcase, {accentColor:"#77aa88",layout:"editorial"});
     assert.deepEqual(content.workItems[0]?.gallery, ["https://example.com/gallery.png"]);
+    assert.deepEqual(content.workItems[0]?.links, [{ label: "Demo", url: "https://example.com/demo" }]);
     assert.equal(content.posts[0]?.body, "Real post body");
     assert.equal(content.posts[0]?.publishedAt, "October 2026");
     assert.equal(content.hero.tagline, "");

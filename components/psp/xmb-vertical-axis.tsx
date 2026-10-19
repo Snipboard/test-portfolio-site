@@ -15,15 +15,7 @@ interface XmbVerticalAxisProps {
 function ItemGlyph({ item }: { item: XmbItem }) {
   const common = "h-5 w-5";
 
-  if (item.action === "settings-theme") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
-        <path d="M3 6h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-      </svg>
-    );
-  }
-
-  if (item.action === "settings-back" || item.action === "collection-back") {
+  if (item.action === "collection-back") {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
         <path d="m10 17-5-5 5-5" /><path d="M5 12h14" />
@@ -67,14 +59,6 @@ function ItemGlyph({ item }: { item: XmbItem }) {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
         <path d="M10 13a5 5 0 0 0 7.1.1l2-2a5 5 0 0 0-7.1-7.1l-1.1 1.1M14 11a5 5 0 0 0-7.1-.1l-2 2A5 5 0 0 0 12 20l1.1-1.1" />
-      </svg>
-    );
-  }
-
-  if (item.action === "theme") {
-    return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={common} aria-hidden="true">
-        <circle cx="12" cy="12" r="8" /><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none" />
       </svg>
     );
   }
@@ -164,7 +148,7 @@ export function XmbVerticalAxis({
               key={`${activeCategoryIndex}-${item.id || i}`}
               onClick={() => isActive ? onItemActivate(i) : onItemSelect(i)}
               aria-current={isActive ? "true" : undefined}
-              className="absolute -ml-[11.5rem] flex w-[23rem] items-center gap-4 pointer-events-auto rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] focus-visible:ring-offset-4 focus-visible:ring-offset-transparent 2xl:ml-0 2xl:w-auto"
+              className="absolute -ml-[7rem] flex w-[23rem] items-center gap-4 pointer-events-auto rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] focus-visible:ring-offset-4 focus-visible:ring-offset-transparent 2xl:ml-0 2xl:w-auto"
               initial={{ opacity: 0, x: -20, y: yPx }}
               animate={{
                 opacity: isActive ? 1 : 0.4,

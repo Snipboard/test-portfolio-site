@@ -17,10 +17,9 @@ import { XmbVerticalAxis } from "./xmb-vertical-axis";
 import { XmbDetailPanel } from "./xmb-detail-panel";
 import { PspMobileView } from "./psp-mobile-view";
 import { XmbExpandedDetail } from "./xmb-expanded-detail";
-import { getPspThemeStyle, isPspThemeName, type PspThemeName } from "./psp-themes";
+import { getPspThemeStyle } from "./psp-showcase-style";
 import type { XmbItem } from "./types";
 import { XmbSceneLayer } from "./xmb-scene-layer";
-import { PspThemeMotion } from "./psp-theme-motion";
 
 interface PspPortfolioPageProps {
   workItems: PortfolioWork[];
@@ -29,7 +28,6 @@ interface PspPortfolioPageProps {
   experienceItems: PortfolioExperience[];
   posts: PortfolioPost[];
   collections: PortfolioCollection[];
-  accentColor?: string;
 }
 
 export function PspPortfolioPage({
@@ -40,16 +38,12 @@ export function PspPortfolioPage({
   posts,
   collections,
 }: PspPortfolioPageProps) {
-  const [themeName, setThemeName] = useState<PspThemeName>("slate");
   const [reduceMotion, setReduceMotion] = useState(false);
-  const [settingsView, setSettingsView] = useState<"root" | "theme">("root");
   const [openCollectionId, setOpenCollectionId] = useState<string | null>(null);
   const [expandedItem, setExpandedItem] = useState<XmbItem | null>(null);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
-      const savedTheme = window.localStorage.getItem("portfolio-psp-theme");
-      if (isPspThemeName(savedTheme)) setThemeName(savedTheme);
       setReduceMotion(window.localStorage.getItem("portfolio-reduce-motion") === "true");
     });
     return () => window.cancelAnimationFrame(frame);
@@ -62,13 +56,11 @@ export function PspPortfolioPage({
       experienceItems,
       posts,
       contact,
-      themeName,
       reduceMotion,
-      settingsView,
       collections,
       openCollectionId,
     }),
-    [hero, workItems, experienceItems, posts, contact, themeName, reduceMotion, settingsView, collections, openCollectionId]
+    [hero, workItems, experienceItems, posts, contact, reduceMotion, collections, openCollectionId]
   );
 
   const [activeCategoryIndex, setActiveCategoryIndex] = useState(0);
@@ -81,8 +73,7 @@ export function PspPortfolioPage({
   const activeItem = activeCategory?.items?.[activeItemIndex];
   const categoryItemsLength = activeCategory?.items?.length ?? 0;
 
-  const settingsCategoryIndex = categories.findIndex((category) => category.id === "settings");
-  const navigationLocked = settingsView === "theme" || openCollectionId !== null;
+  const navigationLocked = openCollectionId !== null;
 
   const selectCategory = useCallback((index: number) => {
     if (navigationLocked) return;
@@ -96,31 +87,12 @@ export function PspPortfolioPage({
   const activateItem = useCallback((item?: XmbItem) => {
     if (!item) return;
 
-    const actionValue = item.actionValue ?? null;
-    if (item.action === "theme" && isPspThemeName(actionValue)) {
-      setThemeName(actionValue);
-      window.localStorage.setItem("portfolio-psp-theme", actionValue);
-      return;
-    }
-
     if (item.action === "motion") {
       setReduceMotion((current) => {
         const next = !current;
         window.localStorage.setItem("portfolio-reduce-motion", String(next));
         return next;
       });
-      return;
-    }
-
-    if (item.action === "settings-theme") {
-      setSettingsView("theme");
-      setActiveItemIndices((previous) => ({ ...previous, [settingsCategoryIndex]: 0 }));
-      return;
-    }
-
-    if (item.action === "settings-back") {
-      setSettingsView("root");
-      setActiveItemIndices((previous) => ({ ...previous, [settingsCategoryIndex]: 0 }));
       return;
     }
 
@@ -158,7 +130,7 @@ export function PspPortfolioPage({
         window.open(item.href, "_blank", "noopener,noreferrer");
       }
     }
-  }, [activeCategoryIndex, settingsCategoryIndex]);
+  }, [activeCategoryIndex]);
 
   const activateItemAtIndex = useCallback((index: number) => {
     activateItem(activeCategory?.items[index]);
@@ -174,13 +146,6 @@ export function PspPortfolioPage({
         return;
       }
 
-      if ((event.key === "Escape" || event.key === "Backspace") && settingsView === "theme") {
-        event.preventDefault();
-        setSettingsView("root");
-        setActiveItemIndices((previous) => ({ ...previous, [settingsCategoryIndex]: 0 }));
-        return;
-      }
-
       if ((event.key === "Escape" || event.key === "Backspace" || event.key === "ArrowLeft") && openCollectionId) {
         event.preventDefault();
         setOpenCollectionId(null);
@@ -189,18 +154,6 @@ export function PspPortfolioPage({
       }
 
       if (openCollectionId && event.key === "ArrowRight") {
-        event.preventDefault();
-        return;
-      }
-
-      if (settingsView === "theme" && event.key === "ArrowLeft") {
-        event.preventDefault();
-        setSettingsView("root");
-        setActiveItemIndices((previous) => ({ ...previous, [settingsCategoryIndex]: 0 }));
-        return;
-      }
-
-      if (settingsView === "theme" && event.key === "ArrowRight") {
         event.preventDefault();
         return;
       }
@@ -230,7 +183,7 @@ export function PspPortfolioPage({
         activateItem(activeItem);
       }
     },
-    [activeCategoryIndex, categoryItemsLength, activeItem, categories.length, activateItem, expandedItem, settingsCategoryIndex, settingsView, openCollectionId]
+    [activeCategoryIndex, categoryItemsLength, activeItem, categories.length, activateItem, expandedItem, openCollectionId]
   );
 
   useEffect(() => {
@@ -248,11 +201,11 @@ export function PspPortfolioPage({
   }, [expandedItem]);
 
   const config = DEFAULT_XMB_CONFIG;
-  const themeStyle = getPspThemeStyle(themeName);
+  const themeStyle = getPspThemeStyle(activeItem?.showcase);
 
   return (
     <MotionConfig reducedMotion={reduceMotion ? "always" : "user"}>
-      <div className="psp-theme-root" style={themeStyle} data-psp-theme={themeName} data-reduce-motion={reduceMotion ? "true" : "false"}>
+      <div className="psp-theme-root" style={themeStyle} data-reduce-motion={reduceMotion ? "true" : "false"}>
         <div className="block lg:hidden">
           <PspMobileView
             categories={categories}
@@ -273,11 +226,10 @@ export function PspPortfolioPage({
             <div className="psp-wave psp-wave-b" />
           </div>
 
-          <PspThemeMotion theme={themeName} reduced={reduceMotion} />
-
           <XmbSceneLayer
             category={activeCategory}
             item={activeItem}
+            reduced={reduceMotion}
           />
 
           <XmbHeader name={`${hero.firstName} ${hero.lastName}`} />
