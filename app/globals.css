@@ -54,6 +54,10 @@ body::selection {
 
 .psp-browse-shell {
   background: var(--psp-bg);
+  /* Shared desktop anchors keep the XMB navigation and preview aligned. */
+  --psp-axis-top: clamp(10.5rem, 26vh, 21rem);
+  --psp-navigation-left: max(18%, calc(50% - 33rem));
+  --psp-details-left: max(46%, calc(50% - 2.5rem));
 }
 
 .psp-xmb-category {

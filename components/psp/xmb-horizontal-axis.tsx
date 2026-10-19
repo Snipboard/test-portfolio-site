@@ -16,7 +16,7 @@ export function XmbHorizontalAxis({
   locked = false,
 }: XmbHorizontalAxisProps) {
   return (
-    <nav className="absolute inset-x-0 top-[29%] z-20 h-28 overflow-hidden" aria-label="Portfolio sections">
+    <nav className="absolute inset-x-0 top-[var(--psp-axis-top)] z-20 h-28 overflow-hidden" aria-label="Portfolio sections">
       {categories.map((category, index) => {
         const active = index === activeCategoryIndex;
         const Icon = category.icon;
@@ -31,7 +31,7 @@ export function XmbHorizontalAxis({
             className={`psp-xmb-category absolute top-0 flex w-[88px] flex-col items-center gap-2 rounded-sm py-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
               active ? "text-white" : "text-white/45 hover:text-white/75"
             }`}
-            style={{ left: `calc(18% + ${(index - activeCategoryIndex) * 108}px - 44px)` }}
+            style={{ left: `calc(var(--psp-navigation-left) + ${(index - activeCategoryIndex) * 108}px - 44px)` }}
           >
             <Icon className={active ? "h-14 w-14" : "h-12 w-12"} />
             <span className={`text-xs font-medium ${active ? "text-white/90" : "text-transparent"}`}>
