@@ -117,7 +117,7 @@ export function buildXmbCategories({
       id: "projects",
       label: "Projects",
       icon: ProjectsIcon,
-      items: workItems.map(projectItem),
+      items: collectionItems("projects", collections, workItems, projectItem),
     },
     {
       id: "blog",
