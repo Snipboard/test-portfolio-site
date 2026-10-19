@@ -16,11 +16,14 @@ export function XmbVerticalAxis({
   onItemSelect,
   onItemActivate,
 }: XmbVerticalAxisProps) {
+  // Hide only the horizontal navigation band: earlier items stay visible above it.
+  const axisBandMask =
+    "linear-gradient(to bottom, black 0, black var(--psp-axis-top), transparent var(--psp-axis-top), transparent calc(var(--psp-axis-top) + 7rem), black calc(var(--psp-axis-top) + 7rem))";
+
   return (
-    /* Keep items below the horizontal XMB row as they scroll. */
     <nav
       className="psp-xmb-rail pointer-events-none absolute inset-0 z-10 overflow-hidden"
-      style={{ clipPath: "inset(calc(var(--psp-axis-top) + 7rem) 0 0 0)" }}
+      style={{ maskImage: axisBandMask, WebkitMaskImage: axisBandMask }}
       aria-label="Items in selected section"
     >
       {items.map((item, index) => {
