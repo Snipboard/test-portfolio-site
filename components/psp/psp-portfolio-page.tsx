@@ -156,6 +156,9 @@ export function PspPortfolioPage({
         ) return;
       }
 
+      // Keep browser shortcuts and Shift+Arrow text selection available.
+      if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return;
+
       const navKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"];
       if (!navKeys.includes(event.key)) return;
       event.preventDefault();
@@ -255,7 +258,7 @@ export function PspPortfolioPage({
           </AnimatePresence>
         </div>
 
-        <div className="psp-shell psp-browse-shell fixed inset-0 z-40 hidden select-none overflow-hidden text-white lg:block">
+        <div className="psp-shell psp-browse-shell fixed inset-0 z-40 hidden select-text overflow-hidden text-white lg:block">
           <XmbHeader name={siteName} contact={contact} />
 
           <motion.div
