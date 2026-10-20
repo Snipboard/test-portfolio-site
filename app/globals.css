@@ -88,7 +88,7 @@ body::selection {
   /* Focus header sits a little closer to the fixed name and social links. */
   --psp-focus-top: calc(var(--psp-header-safe-bottom) - 1rem);
   /* Keep all desktop browse content aligned, slightly higher than the fixed header. */
-  --psp-axis-top: clamp(10.5rem, 26.5dvh, 18.25rem);
+  --psp-axis-top: clamp(10rem, 24dvh, 17.5rem);
   /* Give previous-folder headings room above the icons without fading into the header. */
   --psp-history-top: max(0px, min(calc(var(--psp-header-top) + 4.25rem), calc(var(--psp-axis-top) - 8rem)));
   --psp-navigation-left: max(9.5rem, 15.5vw, calc(50% - 35rem));
@@ -531,6 +531,13 @@ body::selection {
 .psp-home-layout--portrait {
   grid-template-columns: minmax(0, 1.3fr) minmax(14rem, .85fr);
   gap: clamp(2.5rem, 5vw, 7rem);
+}
+/* Raise About Me and the portrait together, leaving the XMB and header in place. */
+.psp-home-copy {
+  transform: translateY(-3.75rem);
+}
+.psp-home-photo {
+  transform: translate(-2.25rem, -3.75rem);
 }
 .psp-home-copy {
   width: 100%;

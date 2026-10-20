@@ -12,7 +12,7 @@ export function MarkdownText({ children, variant = "compact" }: MarkdownTextProp
   const wrapperClass = variant === "lead"
     ? "space-y-4 text-[19px] leading-8 text-white/75 sm:text-[21px] sm:leading-9"
     : variant === "home"
-      ? "space-y-3 text-[16px] leading-[1.7] text-white/75 xl:text-[17px]"
+      ? "space-y-3 text-[15px] leading-[1.6rem] text-white/75"
     : variant === "body"
       ? "space-y-6 text-[19px] leading-8 text-white/70"
       : variant === "focus"

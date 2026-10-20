@@ -30,7 +30,7 @@ const syne = Syne({ variable: "--font-syne", subsets: ["latin"], preload: false 
 const spaceGrotesk = Space_Grotesk({ variable: "--font-space-grotesk", subsets: ["latin"], preload: false });
 
 export const metadata: Metadata = {
-  title: "Affan Khan | Portfolio",
+  title: "Affan Khan",
   description: "Software engineer.",
 };
 

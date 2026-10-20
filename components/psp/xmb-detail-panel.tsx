@@ -177,21 +177,6 @@ export function XmbDetailPanel({
                             </ul>
                           </section>
                         )}
-                        {isProject && links.length > 0 && (
-                          <nav className="mt-9 flex flex-wrap gap-x-6 gap-y-3 border-t border-white/15 pt-7" aria-label="Project links">
-                            {links.map((link, index) => (
-                              <a
-                                key={link.url + "-" + index}
-                                href={link.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="border-b border-[var(--psp-accent)] pb-1 text-sm text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]"
-                              >
-                                {link.label} ↗
-                              </a>
-                            ))}
-                          </nav>
-                        )}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -203,6 +188,29 @@ export function XmbDetailPanel({
                       ))}
                     </div>
                   )}
+                  {/* Project links follow the persistent tags, preserving their push-down animation. */}
+                  <AnimatePresence initial={false}>
+                    {revealed && isProject && links.length > 0 && (
+                      <motion.nav
+                        initial={{ opacity: 0, y: reducedMotion ? 0 : 7 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 0 }}
+                        transition={animation}
+                        className="mt-9 flex flex-wrap gap-x-6 gap-y-3 border-t border-white/15 pt-7" aria-label="Project links">
+                        {links.map((link, index) => (
+                          <a
+                            key={link.url + "-" + index}
+                            href={link.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="border-b border-[var(--psp-accent)] pb-1 text-sm text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]"
+                          >
+                            {link.label} ↗
+                          </a>
+                        ))}
+                      </motion.nav>
+                    )}
+                  </AnimatePresence>
                   {!focused && activeItem.detailHref && onActivate && (
                     <button
                       ref={openRef}
