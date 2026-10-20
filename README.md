@@ -1,13 +1,13 @@
 # Portfolio Site
 
-Live site: https://affankhan-dev.vercel.app/
+Live site: https://affankhan.dev/
 
 ## Content source: Atlas only
 
 Atlas is the sole source of portfolio content. The site fetches published records
 from the read-only public endpoint:
 
-`https://affan-atlas.duckdns.org/api/public/portfolio`
+`https://atlas.affankhan.dev/api/public/portfolio`
 
 Set the server-side `ATLAS_PORTFOLIO_URL` environment variable to override this URL
 (for example, to test against a local Atlas server). No Atlas API credentials are

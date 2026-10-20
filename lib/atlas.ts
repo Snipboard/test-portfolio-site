@@ -6,7 +6,7 @@ import type {
 } from "./portfolio-types.ts";
 
 // Public, read-only Atlas endpoint. No Atlas credentials are sent from the portfolio.
-const DEFAULT_ATLAS_URL = "https://affan-atlas.duckdns.org/api/public/portfolio";
+const DEFAULT_ATLAS_URL = "https://atlas.affankhan.dev/api/public/portfolio";
 
 type PortfolioContent = {
   hero: PortfolioHero;
