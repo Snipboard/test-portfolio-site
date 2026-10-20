@@ -17,7 +17,7 @@ export function XmbHomePanel({ item, siteName }: XmbHomePanelProps) {
           <h2 className="mb-5 text-[clamp(1.65rem,2.5vw,2.25rem)] font-semibold tracking-tight text-white">
             About Me
           </h2>
-          {item.description && <MarkdownText variant="lead">{item.description}</MarkdownText>}
+          {item.description && <MarkdownText variant="home">{item.description}</MarkdownText>}
           {item.activationLabel && item.href && (
             <a
               href={item.href}

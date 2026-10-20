@@ -21,7 +21,7 @@ const SINGLE_ROW_HEIGHT = 44;
 const HEADING_HEIGHT = 40;
 const GROUP_GAP = 24;
 const SINGLE_ITEM_GAP = 4;
-const ABOVE_AXIS_GAP = 12;
+const ABOVE_AXIS_GAP = 26;
 const COLLAPSED_HEADING_HEIGHT = 28;
 const COLLAPSED_FOLDER_GAP = 8;
 
@@ -107,7 +107,7 @@ export function XmbVerticalAxis({
   // Fade the list out before it reaches the reserved header space, and
   // disappear behind the horizontal icon band without underlaying either.
   const axisBandMask =
-    "linear-gradient(to bottom, transparent 0, transparent var(--psp-header-safe-bottom), black calc(var(--psp-header-safe-bottom) + 12px), black calc(var(--psp-axis-top) - 10px), transparent var(--psp-axis-top), transparent calc(var(--psp-axis-top) + 7rem), black calc(var(--psp-axis-top) + 7rem), black calc(100% - 2rem), transparent 100%)";
+    "linear-gradient(to bottom, transparent 0, transparent calc(var(--psp-header-safe-bottom) - .75rem), black var(--psp-header-safe-bottom), black calc(var(--psp-axis-top) - 10px), transparent var(--psp-axis-top), transparent calc(var(--psp-axis-top) + 7rem), black calc(var(--psp-axis-top) + 7rem), black calc(100% - 2rem), transparent 100%)";
 
   return (
     <nav

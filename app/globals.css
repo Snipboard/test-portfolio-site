@@ -87,7 +87,8 @@ body::selection {
   --psp-header-safe-bottom: calc(var(--psp-header-top) + 7.25rem);
   /* Focus header sits a little closer to the fixed name and social links. */
   --psp-focus-top: calc(var(--psp-header-safe-bottom) - 1rem);
-  --psp-axis-top: clamp(12rem, 30dvh, 20rem);
+  /* Lift the XMB/navigation and its browse content a touch, leaving the fixed header untouched. */
+  --psp-axis-top: clamp(11.25rem, 28.5dvh, 19.25rem);
   --psp-navigation-left: max(9.5rem, 15.5vw, calc(50% - 35rem));
   --psp-navigation-width: clamp(14.5rem, 22vw, 20rem);
   --psp-column-gap: clamp(3rem, 5vw, 5.5rem);
@@ -491,7 +492,7 @@ body::selection {
 .psp-xmb-rail {
   /* Unlike a z-index overlay, clipping also excludes hidden rail entries
      from mouse hit testing around the header. */
-  clip-path: inset(var(--psp-header-safe-bottom) 0 0 0);
+  clip-path: inset(calc(var(--psp-header-safe-bottom) - .75rem) 0 0 0);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -522,6 +523,8 @@ body::selection {
   align-items: center;
   width: 100%;
   min-height: 100%;
+  /* Keep the landing content optically aligned with the raised XMB rail. */
+  padding-bottom: 1.25rem;
 }
 .psp-home-layout--portrait {
   grid-template-columns: minmax(0, 1.3fr) minmax(14rem, .85fr);
@@ -537,14 +540,15 @@ body::selection {
 }
 .psp-home-photo {
   width: 100%;
-  max-width: 26rem;
+  /* Constrain the width by viewport height so the image stays square on shorter screens. */
+  max-width: min(26rem, 50dvh);
   justify-self: end;
 }
 .psp-home-photo img {
   display: block;
   width: 100%;
-  max-height: min(50dvh, 30rem);
-  aspect-ratio: 4 / 5;
+  height: auto;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   object-position: center 25%;
   border: 1px solid rgb(255 255 255 / .14);

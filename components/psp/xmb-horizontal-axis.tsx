@@ -28,13 +28,13 @@ export function XmbHorizontalAxis({
             disabled={locked}
             aria-label={`Open ${category.label}`}
             aria-current={active ? "page" : undefined}
-            className={`psp-xmb-category pointer-events-auto absolute top-0 flex w-[88px] cursor-pointer flex-col items-center gap-2 rounded-sm py-1 text-center disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
+            className={`psp-xmb-category group pointer-events-auto absolute top-0 flex w-[88px] cursor-pointer flex-col items-center gap-2 rounded-sm py-1 text-center disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
               active ? "text-white" : "text-white/45 hover:text-white/75"
             }`}
             style={{ left: `calc(var(--psp-navigation-left) + ${(index - activeCategoryIndex) * 108}px - 44px)` }}
           >
             <Icon className={active ? "h-14 w-14" : "h-12 w-12"} />
-            <span className={`text-xs font-medium ${active ? "text-white/90" : "text-transparent"}`}>
+            <span className={`text-xs font-medium ${active ? "text-white/90" : "text-white/50 group-hover:text-white/75"}`}>
               {category.label}
             </span>
           </button>

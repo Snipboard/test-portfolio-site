@@ -121,7 +121,7 @@ export function PspMobileView({
             {item.kind === "home" && item.image && (
               <figure className="float-right mb-4 ml-5 w-[38%] max-w-[200px]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.image} alt={`Portrait of ${name}`} className="w-full border border-white/15 object-cover" />
+                <img src={item.image} alt={`Portrait of ${name}`} className="aspect-square w-full border border-white/15 object-cover object-[center_25%]" />
               </figure>
             )}
             {item.eyebrow && (
@@ -130,7 +130,7 @@ export function PspMobileView({
             <h2 className="mt-1 text-3xl font-bold tracking-tight">{item.title}</h2>
             {item.subtitle && <p className="mt-2 text-[15px] text-white/60">{item.subtitle}</p>}
             <div className="my-5 h-px bg-white/12" />
-            {item.description && <MarkdownText>{item.description}</MarkdownText>}
+            {item.description && <MarkdownText variant={item.kind === "home" ? "home" : undefined}>{item.description}</MarkdownText>}
 
             {item.highlights && item.highlights.length > 0 && (
               <ul className="mt-5 space-y-2 text-[15px] text-white/60">
