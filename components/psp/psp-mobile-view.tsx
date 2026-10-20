@@ -77,6 +77,7 @@ export function PspMobileView({
 
       <main className="relative z-10 mt-7">
             <p className="text-xs uppercase tracking-[0.22em] text-white/40">{category.label}</p>
+            {category.id !== "home" && (
             <div className="mt-3 border-t border-white/10" role="group" aria-label={`${category.label} items`}>
               {category.items.map((categoryItem, index) => {
                 const active = index === activeItemIndex;
@@ -106,6 +107,7 @@ export function PspMobileView({
                 );
               })}
             </div>
+            )}
 
         {item && (
           <section className="mt-5 border-l border-white/15 pl-5" aria-live="polite" style={{ fontFamily: item.fontFamily }}>
@@ -116,6 +118,12 @@ export function PspMobileView({
             ) : item.kind === "post" ? (
               <XmbBlogDetail item={item} compact onRead={item.activationLabel ? () => onItemActivate(activeItemIndex) : undefined} />
             ) : <>
+            {item.kind === "home" && item.image && (
+              <figure className="float-right mb-4 ml-5 w-[38%] max-w-[200px]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={item.image} alt={`Portrait of ${name}`} className="w-full border border-white/15 object-cover" />
+              </figure>
+            )}
             {item.eyebrow && (
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--psp-accent)]">{item.eyebrow}</p>
             )}
@@ -179,7 +187,7 @@ export function PspMobileView({
       </main>
 
       <footer className="relative z-10 mt-12 border-t border-white/10 pt-5 text-center text-[11px] uppercase tracking-[0.2em] text-white/30">
-        Tap a section, then choose an item
+        {category.id === "home" ? "Explore the sections above" : "Tap a section, then choose an item"}
       </footer>
     </div>
   );

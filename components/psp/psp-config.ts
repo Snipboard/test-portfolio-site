@@ -107,6 +107,7 @@ export function buildXmbCategories({
           title: "About Me",
           // subtitle: `Hi, I’m ${hero.firstName} ${hero.lastName}.`,
           description: hero.description,
+          image: hero.portraitUrl,
           href: hero.cvUrl,
           downloadName: hero.cvUrl ? "Affan-Khan-CV.pdf" : undefined,
           activationLabel: hero.cvUrl ? "Download CV" : undefined,

@@ -123,6 +123,29 @@ body::selection {
   width: var(--psp-navigation-width);
 }
 
+/* When returning to a previous folder, let its heading glide below the
+   horizontal icon band before the folder's project rows become visible. */
+.psp-xmb-group-entries {
+  animation: psp-xmb-folder-entries-in 210ms ease-out both;
+}
+
+@keyframes psp-xmb-folder-entries-in {
+  0%, 65% {
+    opacity: 0;
+    visibility: hidden;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .psp-xmb-group-entries {
+    animation: none;
+  }
+}
+
 /* The very same preview panel expands into focus mode.
    Animate its geometry rather than swapping in an overlay. */
 .psp-xmb-details {
@@ -475,5 +498,65 @@ body::selection {
   .psp-xmb-category,
   .psp-xmb-item {
     transition: none;
+  }
+}
+
+/* Home has no vertical XMB list. Use the full region beneath the horizontal
+   icons for editorial copy, and show a portrait only when Atlas provides one. */
+.psp-home-panel {
+  top: calc(var(--psp-axis-top) + var(--psp-row-offset));
+  bottom: clamp(3.5rem, 8vh, 6rem);
+  left: var(--psp-navigation-left);
+  right: var(--psp-edge);
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.psp-home-panel::-webkit-scrollbar {
+  display: none;
+}
+.psp-home-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  min-height: 100%;
+}
+.psp-home-layout--portrait {
+  grid-template-columns: minmax(0, 1.3fr) minmax(14rem, .85fr);
+  gap: clamp(2.5rem, 5vw, 7rem);
+}
+.psp-home-copy {
+  width: 100%;
+  max-width: 55rem;
+  padding-block: 1rem;
+}
+.psp-home-layout--portrait .psp-home-copy {
+  max-width: none;
+}
+.psp-home-photo {
+  width: 100%;
+  max-width: 26rem;
+  justify-self: end;
+}
+.psp-home-photo img {
+  display: block;
+  width: 100%;
+  max-height: min(50dvh, 30rem);
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: center 25%;
+  border: 1px solid rgb(255 255 255 / .14);
+  border-radius: 2px;
+}
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .psp-home-layout--portrait {
+    gap: 2.5rem;
+    grid-template-columns: minmax(0, 1.25fr) minmax(12rem, .75fr);
+  }
+  .psp-home-copy .space-y-4 {
+    font-size: 1rem;
+    line-height: 1.65rem;
   }
 }

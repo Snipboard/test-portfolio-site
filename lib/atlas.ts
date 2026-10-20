@@ -116,6 +116,7 @@ function mapContent(payload: unknown): PortfolioContent {
       tagline: str(hero.tagline),
       description: str(hero.description),
       cvUrl: optional(hero.cvUrl),
+      portraitUrl: safeMediaUrl(hero.portraitUrl),
     },
     contact: {
       email: str(contact.email),

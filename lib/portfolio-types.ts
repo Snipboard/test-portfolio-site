@@ -66,6 +66,7 @@ export type PortfolioHero = {
   tagline: string;
   description: string;
   cvUrl?: string;
+  portraitUrl?: string;
 };
 
 export type PortfolioContact = {

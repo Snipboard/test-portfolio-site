@@ -15,6 +15,7 @@ import { XmbHeader } from "./xmb-header";
 import { XmbHorizontalAxis } from "./xmb-horizontal-axis";
 import { XmbVerticalAxis } from "./xmb-vertical-axis";
 import { XmbDetailPanel } from "./xmb-detail-panel";
+import { XmbHomePanel } from "./xmb-home-panel";
 import { PspMobileView } from "./psp-mobile-view";
 import { XmbExpandedDetail } from "./xmb-expanded-detail";
 import { getPspThemeStyle } from "./psp-showcase-style";
@@ -82,6 +83,7 @@ export function PspPortfolioPage({
   const activeItemIndex = activeItemIndices[activeCategoryIndex] ?? 0;
   const activeItem = activeCategory?.items?.[activeItemIndex];
   const categoryItemsLength = activeCategory?.items?.length ?? 0;
+  const isHome = activeCategory?.id === "home";
 
   const selectCategory = useCallback((index: number) => {
     setActiveCategoryIndex(index);
@@ -161,6 +163,8 @@ export function PspPortfolioPage({
 
       const navKeys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Enter"];
       if (!navKeys.includes(event.key)) return;
+      // Home has no vertical menu to move through.
+      if (isHome && (event.key === "ArrowUp" || event.key === "ArrowDown")) return;
       event.preventDefault();
 
       if (event.key === "ArrowLeft") {
@@ -184,7 +188,7 @@ export function PspPortfolioPage({
         activateItem(activeItem);
       }
     },
-    [activeCategoryIndex, categoryItemsLength, activeItem, categories.length, activateItem, expandedItem, closeExpandedItem]
+    [activeCategoryIndex, categoryItemsLength, activeItem, categories.length, activateItem, expandedItem, closeExpandedItem, isHome]
   );
 
   useEffect(() => {
@@ -275,27 +279,33 @@ export function PspPortfolioPage({
             />
           </motion.div>
 
-          <motion.div
-            className="pointer-events-none absolute inset-0 z-10"
-            inert={navigationRetracted}
-            aria-hidden={navigationRetracted}
-            animate={{ y: navigationRetracted ? -110 : 0, opacity: navigationRetracted ? 0 : 1 }}
-            transition={foldingTransition}
-          >
-            <XmbVerticalAxis
-              items={activeCategory.items}
-              activeItemIndex={activeItemIndex}
-              onItemSelect={selectItem}
-              onItemActivate={activateItemAtIndex}
-            />
-          </motion.div>
+          {!isHome && (
+            <motion.div
+              className="pointer-events-none absolute inset-0 z-10"
+              inert={navigationRetracted}
+              aria-hidden={navigationRetracted}
+              animate={{ y: navigationRetracted ? -110 : 0, opacity: navigationRetracted ? 0 : 1 }}
+              transition={foldingTransition}
+            >
+              <XmbVerticalAxis
+                items={activeCategory.items}
+                activeItemIndex={activeItemIndex}
+                onItemSelect={selectItem}
+                onItemActivate={activateItemAtIndex}
+              />
+            </motion.div>
+          )}
 
-          <XmbDetailPanel
-            activeItem={activeItem}
-            onActivate={activeItem?.activationLabel ? () => activateItem(activeItem) : undefined}
-            focusStage={focusStage}
-            onClose={closeExpandedItem}
-          />
+          {isHome && activeItem ? (
+            <XmbHomePanel item={activeItem} siteName={siteName} />
+          ) : (
+            <XmbDetailPanel
+              activeItem={activeItem}
+              onActivate={activeItem?.activationLabel ? () => activateItem(activeItem) : undefined}
+              focusStage={focusStage}
+              onClose={closeExpandedItem}
+            />
+          )}
 
           <p className="sr-only" aria-live="polite">
             {expandedItem ? `Open: ${expandedItem.title}` : `${activeCategory.label}: ${activeItem?.title}`}
