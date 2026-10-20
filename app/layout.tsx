@@ -10,6 +10,7 @@ import "./globals.css";
 import "../styles/portfolio.css";
 import { getThemeStyle } from "@/lib/theme";
 import { FocusNavigationIntent } from "@/components/ui/focus-navigation-intent";
+import { Analytics } from "@vercel/analytics/next";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -49,6 +50,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <FocusNavigationIntent />
         {children}
+        <Analytics />
       </body>
     </html>
   );
