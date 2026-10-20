@@ -104,10 +104,10 @@ export function XmbVerticalAxis({
     return `calc(${activeGroupTop} + ${offset}px)`;
   }
 
-  // Fade the list out before it reaches the reserved header space, and
-  // disappear behind the horizontal icon band without underlaying either.
+  // Clip folder history cleanly above the icon band; do not fade the upper
+  // headings as they approach the header. Retain the lower rail fade.
   const axisBandMask =
-    "linear-gradient(to bottom, transparent 0, transparent calc(var(--psp-header-safe-bottom) - .75rem), black var(--psp-header-safe-bottom), black calc(var(--psp-axis-top) - 10px), transparent var(--psp-axis-top), transparent calc(var(--psp-axis-top) + 7rem), black calc(var(--psp-axis-top) + 7rem), black calc(100% - 2rem), transparent 100%)";
+    "linear-gradient(to bottom, transparent 0, transparent var(--psp-history-top), black var(--psp-history-top), black calc(var(--psp-axis-top) - 10px), transparent calc(var(--psp-axis-top) - 10px), transparent calc(var(--psp-axis-top) + 7rem), black calc(var(--psp-axis-top) + 7rem), black calc(100% - 2rem), transparent 100%)";
 
   return (
     <nav

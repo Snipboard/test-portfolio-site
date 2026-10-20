@@ -5,6 +5,9 @@
 }
 ::-webkit-scrollbar { width: 0; }
 html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
 
 /* ── Experience Section (Minimalist Brand Grid) ── */
 

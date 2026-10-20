@@ -1,194 +1,154 @@
 "use client";
 
-import { Fragment } from "react";
-import type { XmbCategory } from "./types";
 import type { PortfolioContact } from "@/lib/portfolio-types";
+import type { XmbCategory, XmbItem } from "./types";
 import { XmbContactLinks } from "./xmb-header";
 import { MarkdownText } from "./markdown-text";
-import { HorizontalScrollFade } from "./horizontal-scroll-fade";
-import { XmbExperienceDetail } from "./xmb-experience-detail";
-import { XmbBlogDetail } from "./xmb-blog-detail";
-import { XmbProjectDetail } from "./xmb-project-detail";
-import { XmbItemIcon } from "./xmb-item-icon";
 
 interface PspMobileViewProps {
   categories: XmbCategory[];
   contact: PortfolioContact;
   name?: string;
-  activeCategoryIndex: number;
-  activeItemIndex: number;
-  onCategorySelect: (index: number) => void;
-  onItemSelect: (index: number) => void;
-  onItemActivate: (index: number) => void;
+  onItemActivate: (item: XmbItem) => void;
+}
+
+/**
+ * A reading-first mobile layout. There is one document scroll, and every
+ * project/post opens on the first tap; no XMB selection or preview state.
+ */
+function MobileItemList({
+  items,
+  onItemActivate,
+}: {
+  items: XmbItem[];
+  onItemActivate: (item: XmbItem) => void;
+}) {
+  const groups: { id: string; title?: string; entries: XmbItem[] }[] = [];
+
+  for (const item of items) {
+    const id = item.groupId ?? "ungrouped";
+    const previous = groups[groups.length - 1];
+    if (previous && previous.id === id) {
+      previous.entries.push(item);
+    } else {
+      groups.push({ id, title: item.groupTitle, entries: [item] });
+    }
+  }
+
+  return (
+    <div className="mt-6">
+      {groups.map((group, groupIndex) => (
+        <div key={group.id + groupIndex} className={groupIndex > 0 ? "mt-8" : undefined}>
+          {group.title && (
+            <h3 className="mb-2 text-xs font-medium uppercase tracking-[0.12em] text-white/50">
+              {group.title}
+            </h3>
+          )}
+          <ul className="divide-y divide-white/10 border-t border-white/10">
+            {group.entries.map((item) => {
+              const canOpen = Boolean(item.detailHref || (item.href && item.href !== "#"));
+              return (
+                <li key={item.id}>
+                  {canOpen ? (
+                    <button
+                      type="button"
+                      onClick={() => onItemActivate(item)}
+                      aria-label={"Open " + item.title}
+                      aria-haspopup={item.detailHref ? "dialog" : undefined}
+                      className="flex min-h-14 w-full items-center justify-between gap-4 py-3 text-left text-base text-white/85 transition-colors hover:text-white focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]"
+                    >
+                      <span className="min-w-0" style={{ fontFamily: item.fontFamily }}>
+                        {item.title}
+                      </span>
+                      <span aria-hidden="true" className="shrink-0 text-white/40">→</span>
+                    </button>
+                  ) : (
+                    <div className="flex min-h-14 items-center justify-between gap-4 py-3 text-base text-white/55">
+                      <span>{item.title}</span>
+                      <span className="text-xs text-white/40">Coming soon</span>
+                    </div>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function PspMobileView({
   categories,
   contact,
   name = "Affan Khan",
-  activeCategoryIndex,
-  activeItemIndex,
-  onCategorySelect,
-  onItemSelect,
   onItemActivate,
 }: PspMobileViewProps) {
-  const category = categories[activeCategoryIndex] ?? categories[0];
-  const item = category?.items[activeItemIndex] ?? category?.items[0];
+  const home = categories.find((category) => category.id === "home")?.items[0];
+  const projects = categories.find((category) => category.id === "projects");
+  const writing = categories.find((category) => category.id === "blog");
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[var(--psp-bg)] px-5 pb-12 pt-6 text-[var(--psp-fg)]">
-      <header className="relative z-10 border-b border-white/10 pb-5">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{name}</h1>
-          <div className="-ml-1.5 mt-1 w-fit">
-            <XmbContactLinks contact={contact} />
-          </div>
-        </div>
-      </header>
-
-      <nav className="relative z-10 -mx-5 mt-6" aria-label="Portfolio sections">
-        <HorizontalScrollFade
-          viewportClassName="scroll-px-5"
-          contentClassName="flex gap-3 px-5 pb-3"
-          resetKey="portfolio-sections"
-        >
-          {categories.map((cat, index) => {
-            const Icon = cat.icon;
-            const active = index === activeCategoryIndex;
-            return (
-              <button
-                type="button"
-                key={cat.id}
-                onClick={() => onCategorySelect(index)}
-                aria-current={active ? "page" : undefined}
-                className={`flex min-w-[78px] shrink-0 snap-start flex-col items-center gap-1.5 border-b-2 px-2 py-2 text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${
-                  active
-                    ? "border-[var(--psp-accent)] text-white"
-                    : "border-transparent text-white/50"
-                }`}
-              >
-                <Icon className="h-7 w-7" />
-                <span>{cat.label}</span>
-              </button>
-            );
-          })}
-        </HorizontalScrollFade>
-      </nav>
-
-      <main className="relative z-10 mt-7">
-            <p className="text-xs uppercase tracking-[0.22em] text-white/40">{category.label}</p>
-            {category.id !== "home" && (
-            <div className="mt-3 border-t border-white/10" role="group" aria-label={`${category.label} items`}>
-              {category.items.map((categoryItem, index) => {
-                const active = index === activeItemIndex;
-                const startsGroup = categoryItem.groupTitle &&
-                  (index === 0 || category.items[index - 1]?.groupId !== categoryItem.groupId);
-                return (
-                  <Fragment key={categoryItem.id}>
-                    {startsGroup && (
-                      <h3 className="border-b border-white/10 px-3 pb-2 pt-5 text-xs font-medium uppercase tracking-[0.16em] text-white/45">
-                        {categoryItem.groupTitle}
-                      </h3>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => active ? onItemActivate(index) : onItemSelect(index)}
-                      aria-current={active ? "true" : undefined}
-                      className={`flex w-full items-center gap-3 border-b border-white/10 pr-3 text-left text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)] ${categoryItem.groupTitle ? "pl-8 py-3" : "pl-3 py-2"} ${
-                        active
-                          ? "bg-white/5 text-white"
-                          : "text-white/55"
-                      }`}
-                    >
-                      <XmbItemIcon item={categoryItem} active={active} />
-                      <span style={{ fontFamily: categoryItem.fontFamily }}>{categoryItem.title}</span>
-                    </button>
-                  </Fragment>
-                );
-              })}
+    <div className="min-h-screen bg-[var(--psp-bg)] px-6 pb-14 pt-5 text-white sm:px-9 sm:pt-8">
+      <div className="mx-auto w-full max-w-2xl">
+        <header className="border-b border-white/10 pb-4">
+          <div className="flex items-center justify-between gap-3">
+            <h1 className="min-w-0 text-lg font-semibold tracking-tight">{name}</h1>
+            <div className="-mr-2 shrink-0 [&_a]:h-11 [&_a]:w-11">
+              <XmbContactLinks contact={contact} />
             </div>
-            )}
+          </div>
+          <nav aria-label="Portfolio sections" className="mt-3 flex flex-wrap items-center gap-x-7 gap-y-1 text-sm">
+            <a href="#home" className="inline-flex min-h-11 items-center text-white/80 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]">Home</a>
+            {projects && <a href="#projects" className="inline-flex min-h-11 items-center text-white/65 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]">Projects</a>}
+            {writing && writing.items.length > 0 && <a href="#writing" className="inline-flex min-h-11 items-center text-white/65 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]">Writing</a>}
+          </nav>
+        </header>
 
-        {item && (
-          <section className="mt-5 border-l border-white/15 pl-5" aria-live="polite" style={{ fontFamily: item.fontFamily }}>
-            {item.kind === "experience" ? (
-              <XmbExperienceDetail item={item} compact />
-            ) : item.kind === "project" ? (
-              <XmbProjectDetail item={item} compact onOpen={item.activationLabel ? () => onItemActivate(activeItemIndex) : undefined} />
-            ) : item.kind === "post" ? (
-              <XmbBlogDetail item={item} compact onRead={item.activationLabel ? () => onItemActivate(activeItemIndex) : undefined} />
-            ) : <>
-            {item.kind === "home" && item.image && (
-              <figure className="float-right mb-4 ml-5 w-[38%] max-w-[200px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={item.image} alt={`Portrait of ${name}`} className="aspect-square w-full border border-white/15 object-cover object-[center_25%]" />
-              </figure>
+        <main>
+          <section id="home" aria-labelledby="mobile-about-title" className="scroll-mt-6 pt-12">
+            <h2 id="mobile-about-title" className="text-xl font-semibold tracking-tight">About Me</h2>
+            {home?.description && (
+              <div className="mt-5" style={{ fontFamily: home.fontFamily }}>
+                <MarkdownText variant="home">{home.description}</MarkdownText>
+              </div>
             )}
-            {item.eyebrow && (
-              <p className="text-xs uppercase tracking-[0.2em] text-[var(--psp-accent)]">{item.eyebrow}</p>
-            )}
-            <h2 className="mt-1 text-3xl font-bold tracking-tight">{item.title}</h2>
-            {item.subtitle && <p className="mt-2 text-[15px] text-white/60">{item.subtitle}</p>}
-            <div className="my-5 h-px bg-white/12" />
-            {item.description && <MarkdownText variant={item.kind === "home" ? "home" : undefined}>{item.description}</MarkdownText>}
-
-            {item.highlights && item.highlights.length > 0 && (
-              <ul className="mt-5 space-y-2 text-[15px] text-white/60">
-                {item.highlights.slice(0, 3).map((highlight) => (
-                  <li key={highlight} className="flex gap-2">
-                    <span className="text-[var(--psp-accent)]" aria-hidden="true">◆</span>
-                    {highlight}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {item.tags && item.tags.length > 0 && (
-              <HorizontalScrollFade
-                className="-mx-6 mt-5"
-                viewportClassName="scroll-px-6"
-                contentClassName="flex gap-2 px-6 pb-1"
-                role="list"
-                ariaLabel={`${item.title} technologies`}
-                resetKey={item.id}
-              >
-                {item.tags.map((tag) => (
-                  <span role="listitem" key={tag} className="shrink-0 snap-start rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/55">{tag}</span>
-                ))}
-              </HorizontalScrollFade>
-            )}
-
-            {item.activationLabel && item.href && item.downloadName ? (
+            {home?.href && home.activationLabel && (
               <a
-                href={item.href}
-                download={item.downloadName}
+                href={home.href}
+                download={home.downloadName || true}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ fontFamily: item.fontFamily }}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--psp-accent)] px-4 py-3 text-sm font-bold text-black"
+                className="mt-5 inline-flex min-h-11 items-center gap-2 border-b border-white/30 text-sm font-medium text-white/85 hover:border-white hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]"
               >
-                <span aria-hidden="true">↓</span>
-                <span>{item.activationLabel}</span>
+                {home.activationLabel}
+                <span aria-hidden="true">↗</span>
               </a>
-            ) : item.activationLabel && (
-              <button
-                type="button"
-                onClick={() => onItemActivate(activeItemIndex)}
-                disabled={item.activationLabel === "Active"}
-                style={{ fontFamily: item.fontFamily }}
-                className="mt-6 w-full rounded-2xl bg-[var(--psp-accent)] px-4 py-3 text-sm font-bold text-black disabled:opacity-50"
-              >
-                {item.activationLabel}
-              </button>
             )}
-            </>}
           </section>
-        )}
-      </main>
 
-      <footer className="relative z-10 mt-12 border-t border-white/10 pt-5 text-center text-[11px] uppercase tracking-[0.2em] text-white/30">
-        {category.id === "home" ? "Explore the sections above" : "Tap a section, then choose an item"}
-      </footer>
+          {projects && projects.items.length > 0 && (
+            <section id="projects" aria-labelledby="mobile-projects-title" className="scroll-mt-6 pt-20">
+              <h2 id="mobile-projects-title" className="text-xl font-semibold tracking-tight">Projects</h2>
+              <MobileItemList items={projects.items} onItemActivate={onItemActivate} />
+            </section>
+          )}
+
+          {writing && writing.items.length > 0 && (
+            <section id="writing" aria-labelledby="mobile-writing-title" className="scroll-mt-6 pt-20">
+              <h2 id="mobile-writing-title" className="text-xl font-semibold tracking-tight">Writing</h2>
+              <MobileItemList items={writing.items} onItemActivate={onItemActivate} />
+            </section>
+          )}
+        </main>
+
+        <footer className="mt-20 flex items-center justify-between gap-4 border-t border-white/10 pt-5 text-sm text-white/45">
+          <span>{name}</span>
+          <a href="#home" className="inline-flex min-h-11 items-center hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--psp-accent)]">
+            Back to top ↑
+          </a>
+        </footer>
+      </div>
     </div>
   );
 }

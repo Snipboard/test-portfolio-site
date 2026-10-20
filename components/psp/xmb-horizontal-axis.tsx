@@ -33,7 +33,7 @@ export function XmbHorizontalAxis({
             }`}
             style={{ left: `calc(var(--psp-navigation-left) + ${(index - activeCategoryIndex) * 108}px - 44px)` }}
           >
-            <Icon className={active ? "h-14 w-14" : "h-12 w-12"} />
+            <Icon className="h-12 w-12" />
             <span className={`text-xs font-medium ${active ? "text-white/90" : "text-white/50 group-hover:text-white/75"}`}>
               {category.label}
             </span>

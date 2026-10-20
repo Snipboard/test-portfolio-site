@@ -229,7 +229,7 @@ export function PspPortfolioPage({
   const foldingTransition = { duration: 0.17, ease: [0.2, 0.75, 0.3, 1] as const };
 
   const themeStyle = {
-    ...getPspThemeStyle(activeItem?.showcase),
+    ...getPspThemeStyle(expandedItem?.showcase ?? activeItem?.showcase),
     ["--psp-bg" as string]: NEUTRAL_SHOWCASE.backgroundColor,
   };
 
@@ -242,11 +242,7 @@ export function PspPortfolioPage({
               categories={categories}
               contact={contact}
               name={siteName}
-              activeCategoryIndex={activeCategoryIndex}
-              activeItemIndex={activeItemIndex}
-              onCategorySelect={selectCategory}
-              onItemSelect={selectItem}
-              onItemActivate={activateItemAtIndex}
+              onItemActivate={activateItem}
             />
           </div>
           <AnimatePresence initial={false}>

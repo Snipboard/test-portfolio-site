@@ -27,10 +27,15 @@ export function XmbExpandedDetail({
   const backRef = useRef<HTMLButtonElement>(null);
   const reducedMotion = useReducedMotion();
 
-  // Only focus the copy of the Back button that is visible at this breakpoint.
+  // Restore focus to the row that opened the mobile detail when it closes.
   useEffect(() => {
     const query = isDesktop ? "(min-width: 1024px)" : "(max-width: 1023px)";
-    if (window.matchMedia(query).matches) backRef.current?.focus();
+    if (!window.matchMedia(query).matches) return;
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    backRef.current?.focus({ preventScroll: true });
+    return () => {
+      if (!isDesktop && previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
   }, [isDesktop]);
 
   // One gallery, with no duplicate hero image farther down the write-up.
@@ -47,8 +52,9 @@ export function XmbExpandedDetail({
 
   return (
     <motion.section
-      role="region"
-      aria-label={isPost ? "Writing focus view" : "Project focus view"}
+      role={isDesktop ? "region" : "dialog"}
+      aria-modal={isDesktop ? undefined : true}
+      aria-label={isPost ? "Writing detail" : "Project detail"}
       aria-labelledby={titleId}
       className={
         isDesktop
@@ -58,16 +64,16 @@ export function XmbExpandedDetail({
       style={isDesktop ? { top: "var(--psp-focus-top)", fontFamily: item.fontFamily } : { fontFamily: item.fontFamily }}
       initial={reducedMotion ? { opacity: 0 } : isDesktop
         ? { clipPath: "inset(0 0 0 55%)", opacity: 1 }
-        : { x: 36, opacity: 0 }}
+        : { opacity: 0 }}
       animate={reducedMotion ? { opacity: 1 } : isDesktop
         ? { clipPath: "inset(0 0 0 0%)", opacity: 1 }
-        : { x: 0, opacity: 1 }}
+        : { opacity: 1 }}
       exit={reducedMotion
         ? { opacity: 0, transition: { duration: 0.01 } }
         : isDesktop
           ? { opacity: 0, transition: { duration: 0.2, ease: easeOut } }
-          : { x: 36, opacity: 0 }}
-      transition={{ duration: reducedMotion ? 0.01 : 0.46, ease: easeOut }}
+          : { opacity: 0 }}
+      transition={{ duration: reducedMotion ? 0.01 : isDesktop ? 0.46 : 0.16, ease: easeOut }}
     >
       <div className={isDesktop
         ? "flex shrink-0 items-center justify-between gap-4 border-b border-white/10 px-[var(--psp-edge)] py-3"
@@ -93,10 +99,10 @@ export function XmbExpandedDetail({
       <div className="psp-focus-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain">
         <motion.div
           className="mx-auto w-full max-w-[94rem] px-5 pb-20 pt-7 sm:px-9 lg:px-[var(--psp-edge)] lg:pb-24 lg:pt-10"
-          initial={reducedMotion ? false : { opacity: 0, y: 18 }}
+          initial={isDesktop && !reducedMotion ? { opacity: 0, y: 18 } : false}
           animate={{ opacity: 1, y: 0 }}
           exit={reducedMotion ? undefined : { opacity: 0, y: 10 }}
-          transition={{ duration: reducedMotion ? 0 : 0.4, delay: reducedMotion ? 0 : 0.12, ease: easeOut }}
+          transition={{ duration: !isDesktop || reducedMotion ? 0 : 0.4, delay: !isDesktop || reducedMotion ? 0 : 0.12, ease: easeOut }}
         >
           {isPost ? (
             <article className="mx-auto max-w-[48rem]">
@@ -122,7 +128,7 @@ export function XmbExpandedDetail({
               )}
               {item.body && (
                 <div className="mt-9 border-t border-white/15 pt-9">
-                  <MarkdownText variant="focus">{item.body}</MarkdownText>
+                  <MarkdownText variant={isDesktop ? "focus" : "home"}>{item.body}</MarkdownText>
                 </div>
               )}
             </article>
@@ -141,19 +147,29 @@ export function XmbExpandedDetail({
                 )}
                 {item.description && (
                   <div className="mt-6">
-                    <MarkdownText variant="focus">{item.description}</MarkdownText>
+                    <MarkdownText variant={isDesktop ? "focus" : "home"}>{item.description}</MarkdownText>
                   </div>
                 )}
 
                 {images.length > 0 && (
-                  <div className="mt-9 lg:hidden">
-                    <ProjectGallery key={item.id} images={images} title={item.title} variant="focus" />
-                  </div>
+                  <section className="mt-8 space-y-5 lg:hidden" aria-label="Project images">
+                    {images.map((src, index) => (
+                      <figure key={src} className="border border-white/10 bg-white/[0.025]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={src}
+                          loading="lazy"
+                          alt={item.title + " screenshot " + (index + 1)}
+                          className="mx-auto block max-h-[28rem] w-full object-contain"
+                        />
+                      </figure>
+                    ))}
+                  </section>
                 )}
 
                 {item.body && (
                   <section className="mt-10 border-t border-white/15 pt-9" aria-label="Project details">
-                    <MarkdownText variant="focus">{item.body}</MarkdownText>
+                    <MarkdownText variant={isDesktop ? "focus" : "home"}>{item.body}</MarkdownText>
                   </section>
                 )}
 

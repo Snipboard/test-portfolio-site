@@ -87,8 +87,10 @@ body::selection {
   --psp-header-safe-bottom: calc(var(--psp-header-top) + 7.25rem);
   /* Focus header sits a little closer to the fixed name and social links. */
   --psp-focus-top: calc(var(--psp-header-safe-bottom) - 1rem);
-  /* Lift the XMB/navigation and its browse content a touch, leaving the fixed header untouched. */
-  --psp-axis-top: clamp(11.25rem, 28.5dvh, 19.25rem);
+  /* Keep all desktop browse content aligned, slightly higher than the fixed header. */
+  --psp-axis-top: clamp(10.5rem, 26.5dvh, 18.25rem);
+  /* Give previous-folder headings room above the icons without fading into the header. */
+  --psp-history-top: max(0px, min(calc(var(--psp-header-top) + 4.25rem), calc(var(--psp-axis-top) - 8rem)));
   --psp-navigation-left: max(9.5rem, 15.5vw, calc(50% - 35rem));
   --psp-navigation-width: clamp(14.5rem, 22vw, 20rem);
   --psp-column-gap: clamp(3rem, 5vw, 5.5rem);
@@ -492,7 +494,7 @@ body::selection {
 .psp-xmb-rail {
   /* Unlike a z-index overlay, clipping also excludes hidden rail entries
      from mouse hit testing around the header. */
-  clip-path: inset(calc(var(--psp-header-safe-bottom) - .75rem) 0 0 0);
+  clip-path: inset(var(--psp-history-top) 0 0 0);
 }
 
 @media (prefers-reduced-motion: reduce) {
