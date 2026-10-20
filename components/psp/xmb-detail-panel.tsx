@@ -127,33 +127,26 @@ export function XmbDetailPanel({
                       {[activeItem.eyebrow, activeItem.note].filter(Boolean).join(" · ")}
                     </p>
                   )}
-                  {!focused && isProject && !!activeItem.tags?.length && (
-                    <div className="mt-4 flex flex-wrap gap-2" aria-label="Project technologies">
-                      {activeItem.tags.map((tag) => (
-                        <span key={tag} className="border border-white/15 px-2.5 py-1 text-xs text-white/60">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {!focused && activeItem.detailHref && onActivate && (
-                    <button
-                      ref={openRef}
-                      type="button"
-                      onClick={onActivate}
-                      className="psp-detail-open border-b border-[var(--psp-accent)] pb-1 text-sm font-medium text-white hover:text-[var(--psp-accent)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--psp-accent)]"
-                    >
-                      {isPost ? "Read" : "More info"} →
-                    </button>
-                  )}
                   <AnimatePresence initial={false}>
                     {revealed && (
                       <motion.div
                         key={`additional-${activeItem.id}`}
-                        initial={{ opacity: 0, y: reducedMotion ? 0 : 7 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 0, transition: { duration: reducedMotion ? 0 : 0.08 } }}
-                        transition={{ ...animation, delay: reducedMotion ? 0 : 0.07 }}
+                        initial={{ opacity: 0, y: reducedMotion ? 0 : 7, ...(isProject ? { height: 0 } : {}) }}
+                        animate={{ opacity: 1, y: 0, ...(isProject ? { height: "auto" } : {}) }}
+                        exit={{
+                          opacity: 0,
+                          y: 0,
+                          ...(isProject ? { height: 0 } : {}),
+                          transition: { duration: reducedMotion ? 0 : isProject ? 0.12 : 0.08 },
+                        }}
+                        transition={isProject
+                          ? {
+                              height: { duration: reducedMotion ? 0 : 0.28, ease: [0.2, 0.75, 0.3, 1] as const },
+                              opacity: { duration: reducedMotion ? 0 : 0.14, delay: reducedMotion ? 0 : 0.06 },
+                              y: animation,
+                            }
+                          : { ...animation, delay: reducedMotion ? 0 : 0.07 }}
+                        style={isProject ? { overflow: "hidden" } : undefined}
                         className="psp-detail-extra"
                       >
                         {isPost && activeItem.image && (
@@ -184,13 +177,6 @@ export function XmbDetailPanel({
                             </ul>
                           </section>
                         )}
-                        {isProject && activeItem.tags && activeItem.tags.length > 0 && (
-                          <div className="mt-8 flex flex-wrap gap-2" aria-label="Tools and technologies">
-                            {activeItem.tags.map((tag) => (
-                              <span key={tag} className="border border-white/15 px-3 py-1.5 text-xs text-white/60">{tag}</span>
-                            ))}
-                          </div>
-                        )}
                         {isProject && links.length > 0 && (
                           <nav className="mt-9 flex flex-wrap gap-x-6 gap-y-3 border-t border-white/15 pt-7" aria-label="Project links">
                             {links.map((link, index) => (
@@ -209,6 +195,24 @@ export function XmbDetailPanel({
                       </motion.div>
                     )}
                   </AnimatePresence>
+                  {/* One persistent tag row, pushed down by expanding content. */}
+                  {isProject && !!activeItem.tags?.length && (
+                    <div className="mt-4 flex flex-wrap gap-2" aria-label="Project technologies">
+                      {activeItem.tags.map((tag) => (
+                        <span key={tag} className="border border-white/15 px-2.5 py-1 text-xs text-white/60">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                  {!focused && activeItem.detailHref && onActivate && (
+                    <button
+                      ref={openRef}
+                      type="button"
+                      onClick={onActivate}
+                      className="psp-detail-open border-b border-[var(--psp-accent)] pb-1 text-sm font-medium text-white hover:text-[var(--psp-accent)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--psp-accent)]"
+                    >
+                      {isPost ? "Read" : "More info"} →
+                    </button>
+                  )}
                 </>
               ) : (
                 <>
