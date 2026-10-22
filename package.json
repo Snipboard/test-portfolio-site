@@ -10,7 +10,7 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "node --test --experimental-strip-types --test-concurrency=1 tests/*.test.mts",
-    "test:coverage": "node --test --experimental-strip-types --experimental-test-coverage --test-coverage-lines=95 --test-coverage-branches=75 --test-coverage-functions=100 --test-concurrency=1 tests/*.test.mts",
+    "test:coverage": "node --test --experimental-strip-types --experimental-test-coverage --test-coverage-lines=95 --test-coverage-branches=75 --test-coverage-functions=100 --test-concurrency=1 --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=junit.xml --test-reporter=lcov --test-reporter-destination=lcov.info tests/*.test.mts",
     "check": "npm run lint && npm run typecheck && npm run test:coverage"
   },
   "dependencies": {

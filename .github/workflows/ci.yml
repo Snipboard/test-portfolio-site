@@ -34,6 +34,18 @@ jobs:
       - name: Run quality checks
         run: npm run check
 
+      # Preserve JUnit and LCOV from the existing coverage test execution.
+      # Artifacts are uploaded even if lint, typing, or tests fail.
+      - name: Upload Benchmark report inputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-ci
+          path: |
+            junit.xml
+            lcov.info
+          if-no-files-found: ignore
+
   build:
     name: Production build
     runs-on: ubuntu-latest
