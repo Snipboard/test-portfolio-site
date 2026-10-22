@@ -31,4 +31,10 @@ Acceptance checks for this PR:
 - A subsequent commit to this same PR causes the bot to **update that same comment ID**, without duplicating comments. Stale PR heads must not publish.
 - This test does **not** verify a fork-originated PR. Fork token permissions, `workflow_run.pull_requests` omissions and ambiguous-head handling remain separate live acceptance items.
 
-The GitHub report and Actions evidence will be recorded here after they are observed. Do not merge this test PR solely to claim fork support.
+**First live consumer report verified:** [PR #3 initial CI](https://github.com/affank1020/portfolio-site/actions/runs/39770049134) passed and uploaded current artifact `12421524419`. The separate [trusted reusable publisher](https://github.com/affank1020/portfolio-site/actions/runs/39770225759) succeeded, including exact-base selection, baseline download, and comment publication.
+
+It created [Benchmark quality report comment #6339543108](https://github.com/affank1020/portfolio-site/pull/3#issuecomment-6339543108): 23 passing tests; line coverage 100.00% current and base (+0.00 pp); function coverage 100.00% (+0.00 pp); and branch coverage 96.00% (+0.00 pp). This proves the real second-repository producer-to-publisher-to-comment path with a complete base comparison.
+
+**Comment-update test:** This documentation-only follow-up commit is deliberately the second head revision of PR #3. Re-run CI and the trusted publisher, then verify that existing comment **ID `6339543108`** is updated in place and no second Benchmark-owned report comment appears. Record the result on PR #3. Do not infer successful comment deduplication from unit tests alone.
+
+**Still outstanding:** a genuinely fork-originated PR on this consumer, plus its token-permission and ambiguous-identity checks. Do not merge this validation PR solely to claim fork support.
