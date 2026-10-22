@@ -16,3 +16,19 @@ The trusted `.github/workflows/benchmark-report.yml` calls the reviewed, immutab
 6. Capture GitHub CI/publisher URLs and report comments in the [Benchmark PR #7 consumer validation plan](https://github.com/affank1020/benchmark/pull/7); record missing live scenarios explicitly.
 
 **Important:** Portfolio-site's current Node coverage includes whatever sources the tests load. This pilot validates the GitHub integration plumbing; its percentages are **not** proof of complete coverage across Next.js pages and UI components. It does not change the existing numeric coverage thresholds.
+
+## Live external-consumer acceptance (2026-10-22)
+
+**Prerequisite confirmed:** Portfolio-site PR #2 merged to `main` at `69d6e4f0af9b5ea7a1b25329246a73bed79d97ac`. The matching [successful `CI` push run](https://github.com/affank1020/portfolio-site/actions/runs/39769685504) uploaded `benchmark-ci` artifact ID `12421089190` with the producer-side JUnit and LCOV inputs. This is the exact base SHA that Benchmark's trusted reporter must use; no earlier commit is an acceptable substitute.
+
+**This validation PR** changes documentation only and deliberately preserves test execution, reporting workflow, source code, and numerical coverage thresholds. It is intended to generate a fresh PR CI result so the already-installed trusted `workflow_run` publisher can perform the real cross-repository download and comment publication.
+
+Acceptance checks for this PR:
+
+- The PR's own CI completes with a read-only token and publishes `benchmark-ci` for the PR head.
+- The separately triggered `Benchmark PR Report` job runs from the consumer's default branch, selects this exact open PR, finds the `main` baseline at `69d6e4f`, and downloads the correct baseline artifact.
+- Exactly one bot-owned report comment is created containing actual current and baseline coverage and signed percentage-point deltas (zero is valid when code is unchanged).
+- A subsequent commit to this same PR causes the bot to **update that same comment ID**, without duplicating comments. Stale PR heads must not publish.
+- This test does **not** verify a fork-originated PR. Fork token permissions, `workflow_run.pull_requests` omissions and ambiguous-head handling remain separate live acceptance items.
+
+The GitHub report and Actions evidence will be recorded here after they are observed. Do not merge this test PR solely to claim fork support.
