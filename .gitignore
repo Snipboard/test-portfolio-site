@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/junit.xml
+/lcov.info
 
 # next.js
 /.next/
